@@ -1,6 +1,6 @@
 package io.github.junhyoung.nearbuy.user.repository;
 
-import io.github.junhyoung.nearbuy.user.domain.User;
+import io.github.junhyoung.nearbuy.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

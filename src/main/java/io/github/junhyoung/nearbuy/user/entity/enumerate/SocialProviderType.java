@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.user.domain.enumerate;
+package io.github.junhyoung.nearbuy.user.entity.enumerate;
 
 import lombok.Getter;
 

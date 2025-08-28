@@ -1,7 +1,7 @@
 package io.github.junhyoung.nearbuy.user.service;
 
-import io.github.junhyoung.nearbuy.user.domain.User;
-import io.github.junhyoung.nearbuy.user.domain.enumerate.UserRoleType;
+import io.github.junhyoung.nearbuy.user.entity.User;
+import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
 import io.github.junhyoung.nearbuy.user.dto.UserJoinRequestDto;
 import io.github.junhyoung.nearbuy.user.dto.UserUpdateRequestDto;
 import io.github.junhyoung.nearbuy.user.repository.UserRepository;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
