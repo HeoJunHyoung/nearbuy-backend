@@ -6,9 +6,9 @@
 # It is recommended to commit the main application.yml.
 # Ignore environment-specific or secret files instead.
 #
-# Example:
-# /src/main/resources/application-local.yml
-# /src/main/resources/secrets.properties
+/src/main/resources/application.yml
+/src/main/resources/application.properties
+/src/main/resources/secrets.properties
 
 # Log files
 *.log
