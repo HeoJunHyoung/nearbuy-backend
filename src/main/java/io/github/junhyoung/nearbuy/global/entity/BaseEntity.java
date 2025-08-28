@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.global;
+package io.github.junhyoung.nearbuy.global.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

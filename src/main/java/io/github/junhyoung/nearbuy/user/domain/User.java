@@ -1,8 +1,9 @@
 package io.github.junhyoung.nearbuy.user.domain;
 
-import io.github.junhyoung.nearbuy.global.BaseEntity;
+import io.github.junhyoung.nearbuy.global.entity.BaseEntity;
 import io.github.junhyoung.nearbuy.user.domain.enumerate.SocialProviderType;
 import io.github.junhyoung.nearbuy.user.domain.enumerate.UserRoleType;
+import io.github.junhyoung.nearbuy.user.dto.UserRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -56,6 +57,12 @@ public class User extends BaseEntity {
         this.roleType = roleType;
         this.nickname = nickname;
         this.email = email;
+    }
+
+    //== 내부 비즈니스 로직 ==//
+    public void updateUser(UserRequestDto userRequestDto) {
+        this.email = userRequestDto.getEmail();
+        this.nickname = userRequestDto.getNickname();
     }
 
 }
