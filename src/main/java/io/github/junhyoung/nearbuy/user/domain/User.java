@@ -3,7 +3,8 @@ package io.github.junhyoung.nearbuy.user.domain;
 import io.github.junhyoung.nearbuy.global.entity.BaseEntity;
 import io.github.junhyoung.nearbuy.user.domain.enumerate.SocialProviderType;
 import io.github.junhyoung.nearbuy.user.domain.enumerate.UserRoleType;
-import io.github.junhyoung.nearbuy.user.dto.UserRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.UserJoinRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -60,9 +61,9 @@ public class User extends BaseEntity {
     }
 
     //== 내부 비즈니스 로직 ==//
-    public void updateUser(UserRequestDto userRequestDto) {
-        this.email = userRequestDto.getEmail();
-        this.nickname = userRequestDto.getNickname();
+    public void updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        this.email = userUpdateRequestDto.getEmail();
+        this.nickname = userUpdateRequestDto.getNickname();
     }
 
 }
