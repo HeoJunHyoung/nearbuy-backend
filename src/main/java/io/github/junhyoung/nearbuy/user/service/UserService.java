@@ -1,5 +1,6 @@
 package io.github.junhyoung.nearbuy.user.service;
 
+import io.github.junhyoung.nearbuy.user.dto.UserExistRequestDto;
 import io.github.junhyoung.nearbuy.user.entity.User;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
 import io.github.junhyoung.nearbuy.user.dto.UserJoinRequestDto;
@@ -27,8 +28,8 @@ public class UserService implements UserDetailsService {
     /**
      * 자체 로그인 회원 존재 여부 확인 - 프론트단에서의 검증
      */
-    public Boolean isExistUser(UserJoinRequestDto userJoinRequestDto) {
-        return userRepository.existsByUsername(userJoinRequestDto.getUsername());
+    public Boolean isExistUser(UserExistRequestDto userExistRequestDto) {
+        return userRepository.existsByUsername(userExistRequestDto.getUsername());
     }
 
     /**

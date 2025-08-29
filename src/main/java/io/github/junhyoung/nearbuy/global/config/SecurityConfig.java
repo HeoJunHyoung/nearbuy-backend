@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.global.config.security;
+package io.github.junhyoung.nearbuy.global.config;
 
 import io.github.junhyoung.nearbuy.global.filter.LoginFilter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -57,7 +57,7 @@ public class SecurityConfig {
 
                 // 2. 인가 규칙
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/join").permitAll() // 로그인, 회원가입 경로는 허용
+                        .requestMatchers("/login", "/user/join").permitAll() // 로그인, 회원가입 경로는 허용
                         .anyRequest().authenticated() // 나머지 경로는 인증 필요
                 )
 
