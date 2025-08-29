@@ -3,7 +3,7 @@ package io.github.junhyoung.nearbuy.jwt.service;
 import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
 import io.github.junhyoung.nearbuy.jwt.dto.request.RefreshRequestDto;
 import io.github.junhyoung.nearbuy.jwt.dto.response.JWTResponseDto;
-import io.github.junhyoung.nearbuy.jwt.entity.RefreshToken;
+import io.github.junhyoung.nearbuy.jwt.entity.RefreshEntity;
 import io.github.junhyoung.nearbuy.jwt.repository.RefreshRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +57,7 @@ public class JwtService {
         String newRefreshToken = JWTUtil.createJWT(username, role, false);
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
-        RefreshToken newRefreshEntity = RefreshToken.builder()
+        RefreshEntity newRefreshEntity = RefreshEntity.builder()
                 .username(username)
                 .refresh(newRefreshToken)
                 .build();
@@ -98,7 +98,7 @@ public class JwtService {
         String newRefreshToken = JWTUtil.createJWT(username, role, false);
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
-        RefreshToken newRefreshEntity = RefreshToken.builder()
+        RefreshEntity newRefreshEntity = RefreshEntity.builder()
                 .username(username)
                 .refresh(newRefreshToken)
                 .build();
@@ -117,7 +117,7 @@ public class JwtService {
     // JWT Refresh 토큰 발급 후 저장 메소드
     @Transactional
     public void addRefresh(String username, String refreshToken) {
-        RefreshToken.builder()
+        RefreshEntity.builder()
                 .username(username)
                 .refresh(refreshToken)
                 .build();

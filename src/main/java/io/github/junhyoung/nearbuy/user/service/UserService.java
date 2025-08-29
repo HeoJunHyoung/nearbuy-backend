@@ -5,7 +5,7 @@ import io.github.junhyoung.nearbuy.auth.dto.CustomOAuth2User;
 import io.github.junhyoung.nearbuy.user.dto.request.UserDeleteRequestDto;
 import io.github.junhyoung.nearbuy.user.dto.request.UserExistRequestDto;
 import io.github.junhyoung.nearbuy.user.dto.response.UserResponseDto;
-import io.github.junhyoung.nearbuy.user.entity.User;
+import io.github.junhyoung.nearbuy.user.entity.UserEntity;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.SocialProviderType;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
 import io.github.junhyoung.nearbuy.user.dto.request.UserJoinRequestDto;
@@ -17,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,7 +28,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Map;
@@ -63,7 +63,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             throw new IllegalArgumentException("1차 비밀번호와 2차 비밀번호가 서로 일치하지 않습니다.");
         }
 
-        User user = User.builder()
+        UserEntity userEntity = UserEntity.builder()
                 .username(userJoinRequestDto.getUsername())
                 .password(passwordEncoder.encode(userJoinRequestDto.getOriginPassword()))
                 .isLock(false)
@@ -73,7 +73,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
                 .email(userJoinRequestDto.getEmail())
                 .build();
 
-        return userRepository.save(user).getId();
+        return userRepository.save(userEntity).getId();
     }
 
 
@@ -82,8 +82,16 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsernameAndIsLockAndIsSocial(username, false, false)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username));
+
+        UserEntity entity = userRepository.findByUsernameAndIsLockAndIsSocial(username, false, false)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+
+        return User.builder()
+                .username(entity.getUsername())
+                .password(entity.getPassword())
+                .roles(entity.getRoleType().name())
+                .accountLocked(entity.getIsLock())
+                .build();
     }
 
 
@@ -102,11 +110,11 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         }
 
         // 조회
-        User findUser = userRepository.findByUsernameAndIsLockAndIsSocial(userUpdateRequestDto.getUsername(), false, false)
+        UserEntity findUserEntity = userRepository.findByUsernameAndIsLockAndIsSocial(userUpdateRequestDto.getUsername(), false, false)
                 .orElseThrow(() -> new UsernameNotFoundException(userUpdateRequestDto.getUsername()));
 
-        findUser.updateUser(userUpdateRequestDto);
-        return userRepository.save(findUser).getId();
+        findUserEntity.updateUser(userUpdateRequestDto);
+        return userRepository.save(findUserEntity).getId();
     }
 
 
@@ -150,7 +158,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         }
 
         // 데이터베이스 조회 -> 존재하면 업데이트, 없으면 신규 가입
-        Optional<User> entity = userRepository.findByUsernameAndIsLockAndIsSocial(username, true, true);
+        Optional<UserEntity> entity = userRepository.findByUsernameAndIsLockAndIsSocial(username, true, true);
 
         if (entity.isPresent()) {
             // role 조회
@@ -165,7 +173,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             userRepository.save(entity.get());
         } else {
             // 신규 유저 추가
-            User newUserEntity = User.builder()
+            UserEntity newUserEntity = UserEntity.builder()
                     .username(username)
                     .password("")
                     .isLock(false)
@@ -192,7 +200,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     public UserResponseDto readUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        User entity = userRepository.findByUsernameAndIsLock(username, false)
+        UserEntity entity = userRepository.findByUsernameAndIsLock(username, false)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다: " + username));
 
         return new UserResponseDto(username, entity.getIsSocial(), entity.getNickname(), entity.getEmail());

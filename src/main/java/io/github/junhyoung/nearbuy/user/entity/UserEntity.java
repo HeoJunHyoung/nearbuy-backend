@@ -20,7 +20,7 @@ import java.util.Collections;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user")
 @Getter
-public class User extends BaseEntity implements UserDetails {
+public class UserEntity extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,9 +52,9 @@ public class User extends BaseEntity implements UserDetails {
     private String email;
 
     @Builder
-    public User(String username, String password, Boolean isLock, Boolean isSocial,
-                SocialProviderType socialProviderType, UserRoleType roleType,
-                String nickname, String email) {
+    public UserEntity(String username, String password, Boolean isLock, Boolean isSocial,
+                      SocialProviderType socialProviderType, UserRoleType roleType,
+                      String nickname, String email) {
         this.username = username;
         this.password = password;
         this.isLock = isLock;
@@ -63,36 +63,6 @@ public class User extends BaseEntity implements UserDetails {
         this.roleType = roleType;
         this.nickname = nickname;
         this.email = email;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(this.roleType.name()));
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username; // `UserDetails`의 getUsername()은 PK가 아닌 로그인 ID를 반환해야 함
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true; // 계정 만료 여부 (true: 만료 안됨)
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return !this.isLock; // 계정 잠김 여부 (true: 잠기지 않음)
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true; // 비밀번호 만료 여부 (true: 만료 안됨)
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true; // 계정 활성화 여부 (true: 활성화됨)
     }
 
     //== 내부 비즈니스 로직 ==//
