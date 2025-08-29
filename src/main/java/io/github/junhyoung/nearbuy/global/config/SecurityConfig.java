@@ -1,8 +1,6 @@
 package io.github.junhyoung.nearbuy.global.config;
 
 import io.github.junhyoung.nearbuy.global.filter.LoginFilter;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +22,11 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final AuthenticationSuccessHandler loginSuccessHandler;
+    private final AuthenticationSuccessHandler socialSuccessHandler;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,
-                          @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler loginSuccessHandler) {
+                          @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler loginSuccessHandler,
+                          @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginSuccessHandler = loginSuccessHandler;
     }
@@ -54,6 +54,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(socialSuccessHandler))
 
                 // 2. 인가 규칙
                 .authorizeHttpRequests(auth -> auth

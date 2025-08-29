@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.handler;
+package io.github.junhyoung.nearbuy.global.handler;
 
 import io.github.junhyoung.nearbuy.global.util.JWTUtil;
 import io.github.junhyoung.nearbuy.jwt.service.JwtService;
