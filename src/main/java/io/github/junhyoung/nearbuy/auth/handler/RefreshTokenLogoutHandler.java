@@ -1,6 +1,6 @@
-package io.github.junhyoung.nearbuy.global.handler;
+package io.github.junhyoung.nearbuy.auth.handler;
 
-import io.github.junhyoung.nearbuy.global.util.JWTUtil;
+import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
 import io.github.junhyoung.nearbuy.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

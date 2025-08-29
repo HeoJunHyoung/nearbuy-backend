@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.global.filter;
+package io.github.junhyoung.nearbuy.auth.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

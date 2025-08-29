@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.global.config;
+package io.github.junhyoung.nearbuy.config;
 
 import io.github.junhyoung.nearbuy.jwt.repository.RefreshRepository;
 import lombok.RequiredArgsConstructor;

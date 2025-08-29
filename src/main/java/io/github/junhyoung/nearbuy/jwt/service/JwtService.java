@@ -1,6 +1,6 @@
 package io.github.junhyoung.nearbuy.jwt.service;
 
-import io.github.junhyoung.nearbuy.global.util.JWTUtil;
+import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
 import io.github.junhyoung.nearbuy.jwt.dto.request.RefreshRequestDto;
 import io.github.junhyoung.nearbuy.jwt.dto.response.JWTResponseDto;
 import io.github.junhyoung.nearbuy.jwt.entity.RefreshToken;

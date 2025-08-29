@@ -1,7 +1,7 @@
 package io.github.junhyoung.nearbuy.user.service;
 
 import io.github.junhyoung.nearbuy.jwt.service.JwtService;
-import io.github.junhyoung.nearbuy.user.dto.CustomOAuth2User;
+import io.github.junhyoung.nearbuy.auth.dto.CustomOAuth2User;
 import io.github.junhyoung.nearbuy.user.dto.request.UserDeleteRequestDto;
 import io.github.junhyoung.nearbuy.user.dto.request.UserExistRequestDto;
 import io.github.junhyoung.nearbuy.user.dto.response.UserResponseDto;
