@@ -1,16 +1,21 @@
 package io.github.junhyoung.nearbuy.user.service;
 
+import io.github.junhyoung.nearbuy.jwt.service.JwtService;
 import io.github.junhyoung.nearbuy.user.dto.CustomOAuth2User;
-import io.github.junhyoung.nearbuy.user.dto.UserExistRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.request.UserDeleteRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.request.UserExistRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.response.UserResponseDto;
 import io.github.junhyoung.nearbuy.user.entity.User;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.SocialProviderType;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
-import io.github.junhyoung.nearbuy.user.dto.UserJoinRequestDto;
-import io.github.junhyoung.nearbuy.user.dto.UserUpdateRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.request.UserJoinRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.request.UserUpdateRequestDto;
 import io.github.junhyoung.nearbuy.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +28,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +39,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     /**
      * 자체 로그인 회원 존재 여부 확인 - 프론트단에서의 검증
@@ -87,12 +92,12 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
      * ㄴ 사용자 잠김 여부 확인
       */
     @Transactional
-    public Long updateUser(UserUpdateRequestDto userUpdateRequestDto) throws AccessDeniedException {
+    public Long updateUser(UserUpdateRequestDto userUpdateRequestDto) throws org.springframework.security.access.AccessDeniedException {
 
         // 본인 계정에 대한 수정인지 검증
         String sessionUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!sessionUsername.equals(userUpdateRequestDto.getUsername())) {
-            throw new AccessDeniedException("본인 계정만 수정 가능합니다.");
+            throw new org.springframework.security.access.AccessDeniedException("본인 계정만 수정 가능합니다.");
         }
 
         // 조회
@@ -103,10 +108,10 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         return userRepository.save(findUser).getId();
     }
 
-    // 자체/소셜 로그인 회원 탈퇴
 
-
-    // 소셜 로그인 (매 로그인시 : 신규 = 가입, 기존 = 업데이트)
+    /**
+     * 소셜 로그인 (매 로그인시 : 신규 = 가입, 기존 = 업데이트)
+     */
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
@@ -177,7 +182,45 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         return new CustomOAuth2User(attributes, authorities, username);
     }
 
-    // 자체/소셜 유저 정보 조회
+
+    /**
+     * 자체/소셜 유저 정보 조회
+     */
+    @Transactional(readOnly = true)
+    public UserResponseDto readUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User entity = userRepository.findByUsernameAndIsLock(username, false)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다: " + username));
+
+        return new UserResponseDto(username, entity.getIsSocial(), entity.getNickname(), entity.getEmail());
+    }
+
+    /**
+     * 자체/소셜 로그인 회원 탈퇴
+     */
+    @Transactional
+    public void deleteUser(UserDeleteRequestDto dto) throws org.springframework.security.access.AccessDeniedException {
+
+        // 본인 및 어드민만 삭제 가능 검증
+        SecurityContext context = SecurityContextHolder.getContext();
+        String sessionUsername = context.getAuthentication().getName();
+        String sessionRole = context.getAuthentication().getAuthorities().iterator().next().getAuthority();
+
+        boolean isOwner = sessionUsername.equals(dto.getUsername());
+        boolean isAdmin = sessionRole.equals("ROLE_"+UserRoleType.ADMIN.name());
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("본인 혹은 관리자만 삭제할 수 있습니다.");
+        }
+
+        // 유저 제거
+        userRepository.deleteByUsername(dto.getUsername());
+
+        // Refresh 토큰 제거
+        jwtService.removeRefreshUser(dto.getUsername());
+    }
+
 
 
     //== 내부 메서드 ==//

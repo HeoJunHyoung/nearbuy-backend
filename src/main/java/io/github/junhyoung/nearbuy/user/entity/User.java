@@ -3,7 +3,7 @@ package io.github.junhyoung.nearbuy.user.entity;
 import io.github.junhyoung.nearbuy.global.entity.BaseEntity;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.SocialProviderType;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
-import io.github.junhyoung.nearbuy.user.dto.UserUpdateRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.request.UserUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

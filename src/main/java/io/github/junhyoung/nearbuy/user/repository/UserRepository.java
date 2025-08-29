@@ -14,4 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.username=:username AND u.isLock=false AND u.isSocial=false")
     Optional<User> findByUsernameAndIsLockAndIsSocial(@Param("username") String username, Boolean isLock, Boolean isSocial);
 
+    Optional<User> findByUsernameAndIsLock(String username, Boolean isLock);
+    void deleteByUsername(String username);
+
 }

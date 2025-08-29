@@ -1,11 +1,11 @@
-package io.github.junhyoung.nearbuy.user.dto;
+package io.github.junhyoung.nearbuy.user.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserExistRequestDto {
+public class UserDeleteRequestDto {
 
     private String username;
 

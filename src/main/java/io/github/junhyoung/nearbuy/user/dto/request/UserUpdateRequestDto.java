@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.user.dto;
+package io.github.junhyoung.nearbuy.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
