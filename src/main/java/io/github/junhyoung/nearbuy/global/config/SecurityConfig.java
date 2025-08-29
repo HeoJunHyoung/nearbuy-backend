@@ -1,5 +1,6 @@
 package io.github.junhyoung.nearbuy.global.config;
 
+import io.github.junhyoung.nearbuy.global.filter.JWTFilter;
 import io.github.junhyoung.nearbuy.global.filter.LoginFilter;
 import io.github.junhyoung.nearbuy.global.handler.RefreshTokenLogoutHandler;
 import io.github.junhyoung.nearbuy.jwt.service.JwtService;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -76,7 +78,8 @@ public class SecurityConfig {
                 )
 
                 // 5. 커스텀 필터 추가
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), loginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilter(), LogoutFilter.class)
+                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), loginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
