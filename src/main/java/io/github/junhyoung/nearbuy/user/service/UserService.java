@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Map;
@@ -92,7 +93,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
      * ㄴ 사용자 잠김 여부 확인
       */
     @Transactional
-    public Long updateUser(UserUpdateRequestDto userUpdateRequestDto) throws org.springframework.security.access.AccessDeniedException {
+    public Long updateUser(UserUpdateRequestDto userUpdateRequestDto) throws AccessDeniedException {
 
         // 본인 계정에 대한 수정인지 검증
         String sessionUsername = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -112,6 +113,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     /**
      * 소셜 로그인 (매 로그인시 : 신규 = 가입, 기존 = 업데이트)
      */
+    @Transactional
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
@@ -200,7 +202,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
      * 자체/소셜 로그인 회원 탈퇴
      */
     @Transactional
-    public void deleteUser(UserDeleteRequestDto dto) throws org.springframework.security.access.AccessDeniedException {
+    public void deleteUser(UserDeleteRequestDto dto) throws AccessDeniedException {
 
         // 본인 및 어드민만 삭제 가능 검증
         SecurityContext context = SecurityContextHolder.getContext();
@@ -220,7 +222,6 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         // Refresh 토큰 제거
         jwtService.removeRefreshUser(dto.getUsername());
     }
-
 
 
     //== 내부 메서드 ==//
