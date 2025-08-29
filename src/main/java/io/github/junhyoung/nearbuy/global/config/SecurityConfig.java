@@ -4,9 +4,13 @@ import io.github.junhyoung.nearbuy.global.filter.JWTFilter;
 import io.github.junhyoung.nearbuy.global.filter.LoginFilter;
 import io.github.junhyoung.nearbuy.global.handler.RefreshTokenLogoutHandler;
 import io.github.junhyoung.nearbuy.jwt.service.JwtService;
+import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +23,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -51,6 +60,30 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+    // CORS Bean
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    // 권한 계층
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withRolePrefix("ROLE_")
+                .role(UserRoleType.ADMIN.name()).implies(UserRoleType.USER.name())
+                .build();
+    }
+
     // SecurityFilterChain 설정
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -73,11 +106,19 @@ public class SecurityConfig {
 
                 // 4. 인가 규칙
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/user/join").permitAll() // 로그인, 회원가입 경로는 허용
-                        .anyRequest().authenticated() // 나머지 경로는 인증 필요
+                        .requestMatchers("/login").permitAll() // 로그인
+                        .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll() // JWT 관련 API 호출
+                        .requestMatchers(HttpMethod.POST, "/user/exist", "/user/join").permitAll() // 회원가입
+                        .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name()) // 유저 정보 조회
+                        .requestMatchers(HttpMethod.PUT, "/user").hasRole(UserRoleType.USER.name()) // 유저 정보 수정
+                        .requestMatchers(HttpMethod.DELETE, "/user").hasRole(UserRoleType.USER.name()) // 유저 삭제
+                        .anyRequest().authenticated()
                 )
 
-                // 5. 커스텀 필터 추가
+                // 5. CORS 설정
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 6. 커스텀 필터 추가
                 .addFilterBefore(new JWTFilter(), LogoutFilter.class)
                 .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), loginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
 
