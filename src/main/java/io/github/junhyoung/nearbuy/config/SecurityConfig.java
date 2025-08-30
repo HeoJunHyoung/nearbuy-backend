@@ -5,6 +5,7 @@ import io.github.junhyoung.nearbuy.auth.web.filter.LoginFilter;
 import io.github.junhyoung.nearbuy.auth.web.handler.RefreshTokenLogoutHandler;
 import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
+import io.github.junhyoung.nearbuy.user.service.SocialLoginService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,15 +38,18 @@ public class SecurityConfig {
     private final AuthenticationSuccessHandler localLoginSuccessHandler;
     private final AuthenticationSuccessHandler socialLoginSuccessHandler;
     private final JwtService jwtService;
+    private final SocialLoginService socialLoginService;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,
                           @Qualifier("LocalLoginSuccessHandler") AuthenticationSuccessHandler localLoginSuccessHandler,
                           @Qualifier("SocialLoginSuccessHandler") AuthenticationSuccessHandler socialLoginSuccessHandler,
-                          JwtService jwtService) {
+                          JwtService jwtService,
+                          SocialLoginService socialLoginService) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.localLoginSuccessHandler = localLoginSuccessHandler;
         this.socialLoginSuccessHandler = socialLoginSuccessHandler;
         this.jwtService = jwtService;
+        this.socialLoginService = socialLoginService;
     }
 
     // 비밀번호 암호화 Bean
@@ -98,6 +102,8 @@ public class SecurityConfig {
 
                 // 2. OAuth2 로그인 핸들러
                 .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(socialLoginService)) // custom service를 명시적으로 지정
                         .successHandler(socialLoginSuccessHandler))
 
                 // 3. 로그아웃 handler
