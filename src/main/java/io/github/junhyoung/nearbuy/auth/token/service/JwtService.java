@@ -49,12 +49,13 @@ public class JwtService {
         }
 
         // 정보 추출
+        Long id = JWTUtil.getId(refreshToken);
         String username = JWTUtil.getUsername(refreshToken);
         String role = JWTUtil.getRole(refreshToken);
 
         // 토큰 생성
-        String newAccessToken = JWTUtil.createJWT(username, role, true);
-        String newRefreshToken = JWTUtil.createJWT(username, role, false);
+        String newAccessToken = JWTUtil.createJWT(id, username, role, true);
+        String newRefreshToken = JWTUtil.createJWT(id, username, role, false);
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
         RefreshEntity newRefreshEntity = RefreshEntity.builder()
@@ -90,12 +91,13 @@ public class JwtService {
         }
 
         // 정보 추출
+        Long id = JWTUtil.getId(refreshToken);
         String username = JWTUtil.getUsername(refreshToken);
         String role = JWTUtil.getRole(refreshToken);
 
         // 토큰 생성
-        String newAccessToken = JWTUtil.createJWT(username, role, true);
-        String newRefreshToken = JWTUtil.createJWT(username, role, false);
+        String newAccessToken = JWTUtil.createJWT(id, username, role, true);
+        String newRefreshToken = JWTUtil.createJWT(id, username, role, false);
 
         // 기존 Refresh 토큰 DB 삭제 후 신규 추가
         RefreshEntity newRefreshEntity = RefreshEntity.builder()

@@ -1,6 +1,8 @@
 package io.github.junhyoung.nearbuy.auth.web.handler;
 
 import io.github.junhyoung.nearbuy.auth.token.provider.JwtProvider;
+import io.github.junhyoung.nearbuy.auth.web.dto.CustomOAuth2User;
+import io.github.junhyoung.nearbuy.auth.web.dto.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +22,19 @@ public class SocialLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        String username = authentication.getName();
-        String role = authentication.getAuthorities().iterator().next().getAuthority();
+
+        // Principal을 CustomOAuth2User 타입으로 캐스팅합니다.
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+
+        // CustomOAuth2User에서 UserPrincipal을 가져옵니다.
+        UserPrincipal userPrincipal = oAuth2User.getUserPrincipal();
+
+        Long id = userPrincipal.id();
+        String username = userPrincipal.username();
+        String role = userPrincipal.getRole();
 
         // Refresh 토큰 발급 및 저장 책임을 JwtProvider에 위임
-        String refreshToken = jwtProvider.issueRefreshToken(username, "ROLE_" + role);
+        String refreshToken = jwtProvider.issueRefreshToken(id, username, "ROLE_" + role);
 
         // 응답 처리
         Cookie refreshCookie = new Cookie("refreshToken", refreshToken);

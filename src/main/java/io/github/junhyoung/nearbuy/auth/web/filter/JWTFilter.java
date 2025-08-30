@@ -52,12 +52,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
     // 인증 정보를 SecurityContext에 설정하는 책임을 담당하는 private 메서드
     private void setAuthentication(String accessToken) {
+        Long id = JWTUtil.getId(accessToken);
         String username = JWTUtil.getUsername(accessToken);
         String role = JWTUtil.getRole(accessToken);
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
         // UserPrincipal 객체를 생성하여 principal로 사용합니다.
-        UserPrincipal userPrincipal = new UserPrincipal(username, authorities);
+        UserPrincipal userPrincipal = new UserPrincipal(id, username, authorities);
         Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.authorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }

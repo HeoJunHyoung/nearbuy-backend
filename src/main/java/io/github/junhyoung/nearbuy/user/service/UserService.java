@@ -3,10 +3,7 @@ package io.github.junhyoung.nearbuy.user.service;
 import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import io.github.junhyoung.nearbuy.auth.web.dto.CustomOAuth2User;
 import io.github.junhyoung.nearbuy.auth.web.dto.UserPrincipal;
-import io.github.junhyoung.nearbuy.user.dto.request.UserDeleteRequestDto;
-import io.github.junhyoung.nearbuy.user.dto.request.UserExistRequestDto;
-import io.github.junhyoung.nearbuy.user.dto.request.UserJoinRequestDto;
-import io.github.junhyoung.nearbuy.user.dto.request.UserUpdateRequestDto;
+import io.github.junhyoung.nearbuy.user.dto.request.*;
 import io.github.junhyoung.nearbuy.user.dto.response.UserResponseDto;
 import io.github.junhyoung.nearbuy.user.entity.UserEntity;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.SocialProviderType;
@@ -82,6 +79,17 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         return userEntity.getId();
     }
 
+    @Transactional
+    public void updateUserPassword(String username, UserUpdatePasswordRequestDto dto) {
+        UserEntity findUser = userRepository.findByUsernameAndIsLock(username, false).orElseThrow(() -> new UsernameNotFoundException("회원이 존재하지 않습니다."));
+        // 기존 비밀번호 검증
+        validateOriginPassword(dto.getOriginPassword(), findUser.getPassword());
+        // 새 비밀번호 확인 일치 검증
+        validatePasswordConfirmation(dto.getNewPassword(), dto.getNewConfirmPassword());
+
+        findUser.updateUserPassword(passwordEncoder.encode(dto.getNewPassword()));
+    }
+
     /**
      * 현재 로그인한 유저의 정보를 조회
      */
@@ -137,7 +145,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
 
         // 3. 인증된 세션을 위한 Principal 객체를 생성
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(user.getRoleType().name()));
-        UserPrincipal userPrincipal = new UserPrincipal(user.getUsername(), authorities);
+        UserPrincipal userPrincipal = new UserPrincipal(user.getId(), user.getUsername(), authorities);
 
         return new CustomOAuth2User(userPrincipal, attributes.attributes());
     }
@@ -146,6 +154,18 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     // =================================================================
     // Private Helper Methods
     // =================================================================
+
+    private void validateOriginPassword(String rawPassword, String encodedPassword) {
+        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
+            throw new IllegalArgumentException("기존 비밀번호가 일치하지 않습니다.");
+        }
+    }
+
+    private void validatePasswordConfirmation(String newPassword, String confirmPassword) {
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("새 비밀번호가 서로 일치하지 않습니다.");
+        }
+    }
 
     /**
      * 소셜 유저 정보를 임시로 담기 위한 record 클래스.

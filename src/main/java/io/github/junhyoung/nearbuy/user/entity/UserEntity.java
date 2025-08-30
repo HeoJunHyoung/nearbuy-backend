@@ -9,12 +9,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -69,5 +63,9 @@ public class UserEntity extends BaseEntity{
     public void updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         this.email = userUpdateRequestDto.getEmail();
         this.nickname = userUpdateRequestDto.getNickname();
+    }
+
+    public void updateUserPassword(String newPassword) {
+        this.password = newPassword;
     }
 }
