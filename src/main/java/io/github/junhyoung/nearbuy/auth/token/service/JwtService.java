@@ -119,10 +119,12 @@ public class JwtService {
     // JWT Refresh 토큰 발급 후 저장 메소드
     @Transactional
     public void addRefresh(String username, String refreshToken) {
-        RefreshEntity.builder()
+        RefreshEntity entity = RefreshEntity.builder()
                 .username(username)
                 .refresh(refreshToken)
                 .build();
+
+        refreshRepository.save(entity);
     }
 
     // JWT Refresh 토큰 삭제 메소드

@@ -29,7 +29,7 @@ public class LocalLoginSuccessHandler implements AuthenticationSuccessHandler {
         UserEntity user = userRepository.findByUsernameAndIsLock(username, false)
                 .orElseThrow(() -> new UsernameNotFoundException("유저를 찾을 수 없습니다."));
 
-        JwtTokenDto tokens = jwtProvider.issueTokens(user.getId(), user.getUsername(), user.getRoleType().name());
+        JwtTokenDto tokens = jwtProvider.issueTokens(user.getId(), user.getUsername(), "ROLE_" + user.getRoleType().name());
 
         ResponseWriterUtil.writeJson(response, tokens);
     }
