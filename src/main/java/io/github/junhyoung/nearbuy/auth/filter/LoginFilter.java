@@ -1,12 +1,10 @@
 package io.github.junhyoung.nearbuy.auth.filter;
 
+import io.github.junhyoung.nearbuy.auth.dto.LoginRequestDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
@@ -18,23 +16,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
-
-    public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
-    public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final RequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.POST, "/login");
-
-    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
-    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 
     public LoginFilter(AuthenticationManager authenticationManager, AuthenticationSuccessHandler authenticationSuccessHandler) {
         super(DEFAULT_ANT_PATH_REQUEST_MATCHER, authenticationManager);
@@ -42,36 +32,35 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+
         if (!request.getMethod().equals("POST")) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
 
-        Map<String, String> loginMap;
+        // 1. DTO를 사용해 요청 파싱 로직을 위임
+        LoginRequestDto loginRequest = parseLoginRequest(request);
 
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ServletInputStream inputStream = request.getInputStream();
-            String messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-            loginMap = objectMapper.readValue(messageBody, new TypeReference<>() {
-            });
+        // 2. DTO에서 username과 password를 가져와 Null-safe하게 처리
+        String username = (loginRequest.getUsername() != null) ? loginRequest.getUsername().trim() : "";
+        String password = (loginRequest.getPassword() != null) ? loginRequest.getPassword() : "";
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String username = loginMap.get(usernameParameter);
-        username = (username != null) ? username.trim() : "";
-
-        String password = loginMap.get(passwordParameter);
-        password = (password != null) ? password : "";
-
+        // 3. 인증 토큰 생성
         UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
-
         setDetails(request, authRequest);
 
+        // 4. AuthenticationManager에게 인증 위임
         return this.getAuthenticationManager().authenticate(authRequest);
+    }
+
+    // 파싱 메서드
+    private LoginRequestDto parseLoginRequest(HttpServletRequest request) {
+        try {
+            return objectMapper.readValue(request.getInputStream(), LoginRequestDto.class);
+        } catch (IOException e) {
+            // 5. 예외 발생
+            throw new AuthenticationServiceException("Failed to parse login request body", e);
+        }
     }
 
     protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
@@ -83,5 +72,4 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
                                             Authentication authResult) throws IOException, ServletException {
         authenticationSuccessHandler.onAuthenticationSuccess(request, response, authResult);
     }
-
 }

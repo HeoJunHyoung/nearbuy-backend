@@ -1,9 +1,11 @@
 package io.github.junhyoung.nearbuy.auth.handler;
 
+import io.github.junhyoung.nearbuy.auth.dto.LogoutRequestDto;
 import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
 import io.github.junhyoung.nearbuy.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
@@ -15,9 +17,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+@Slf4j
 public class RefreshTokenLogoutHandler implements LogoutHandler {
 
     private final JwtService jwtService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public RefreshTokenLogoutHandler(JwtService jwtService) {
         this.jwtService = jwtService;
@@ -26,29 +30,22 @@ public class RefreshTokenLogoutHandler implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         try {
-            String body = new BufferedReader(new InputStreamReader(request.getInputStream()))
-                    .lines().reduce("", String::concat);
+            // 1. DTO를 사용하여 요청 본문을 직접 파싱
+            LogoutRequestDto logoutRequest = objectMapper.readValue(request.getInputStream(), LogoutRequestDto.class);
+            String refreshToken = logoutRequest.getRefreshToken();
 
-            if (!StringUtils.hasText(body)) return;
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(body);
-            String refreshToken = jsonNode.has("refreshToken") ? jsonNode.get("refreshToken").asText() : null;
-
-            // 유효성 검증
-            if (refreshToken == null) {
-                return;
+            // 2. 토큰 존재 여부 및 유효성 검증 로직을 명확하게 개선
+            if (StringUtils.hasText(refreshToken) && JWTUtil.isValid(refreshToken, false)) {
+                // 3. Refresh 토큰 삭제
+                jwtService.removeRefresh(refreshToken);
+            } else {
+                // 4. 유효하지 않은 토큰에 대한 로그를 남겨 추적 용이성을 높임
+                log.warn("Invalid or missing refresh token on logout attempt.");
             }
-            Boolean isValid = JWTUtil.isValid(refreshToken, false);
-            if (!isValid) {
-                return;
-            }
-
-            // Refresh 토큰 삭제
-            jwtService.removeRefresh(refreshToken);
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read refresh token", e);
+            // 5. 파싱 실패 시 로그를 남김. 로그아웃은 실패해도 심각한 문제가 아니므로 예외를 던지지 않을 수 있음.
+            log.error("Failed to parse logout request body.", e);
         }
     }
 
