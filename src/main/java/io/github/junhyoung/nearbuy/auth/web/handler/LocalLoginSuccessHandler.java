@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 @Component
-@Qualifier("LoginSuccessHandler")
+@Qualifier("LocalLoginSuccessHandler")
 @RequiredArgsConstructor
-public class LoginSuccessHandler implements AuthenticationSuccessHandler {
+public class LocalLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
 

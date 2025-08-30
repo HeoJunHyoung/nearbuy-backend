@@ -34,17 +34,17 @@ import java.util.List;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-    private final AuthenticationSuccessHandler loginSuccessHandler;
-    private final AuthenticationSuccessHandler socialSuccessHandler;
+    private final AuthenticationSuccessHandler localLoginSuccessHandler;
+    private final AuthenticationSuccessHandler socialLoginSuccessHandler;
     private final JwtService jwtService;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,
-                          @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler loginSuccessHandler,
-                          @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler,
+                          @Qualifier("LocalLoginSuccessHandler") AuthenticationSuccessHandler localLoginSuccessHandler,
+                          @Qualifier("SocialLoginSuccessHandler") AuthenticationSuccessHandler socialLoginSuccessHandler,
                           JwtService jwtService) {
         this.authenticationConfiguration = authenticationConfiguration;
-        this.loginSuccessHandler = loginSuccessHandler;
-        this.socialSuccessHandler = socialSuccessHandler;
+        this.localLoginSuccessHandler = localLoginSuccessHandler;
+        this.socialLoginSuccessHandler = socialLoginSuccessHandler;
         this.jwtService = jwtService;
     }
 
@@ -98,7 +98,7 @@ public class SecurityConfig {
 
                 // 2. OAuth2 로그인 핸들러
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(socialSuccessHandler))
+                        .successHandler(socialLoginSuccessHandler))
 
                 // 3. 로그아웃 handler
                 .logout(logout -> logout
@@ -120,7 +120,7 @@ public class SecurityConfig {
 
                 // 6. 커스텀 필터 추가
                 .addFilterBefore(new JWTFilter(), LogoutFilter.class)
-                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), loginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), localLoginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

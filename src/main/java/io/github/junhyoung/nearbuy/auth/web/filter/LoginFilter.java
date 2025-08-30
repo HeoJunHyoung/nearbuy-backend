@@ -19,6 +19,11 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.io.IOException;
 
+/**
+ * Spring Security에서 기본적으로 제공하는 로그인 필터를 사용하지 않는 이유
+ * ㄴ 기본 필터는 form-data 형태의 요청을 처리하도록 설계되어 있음
+ * ㄴ 현재 프로젝트 구조 상 JSON 형태의 요청 본문을 처리하기 위해서는 커스텀 필터를 만들어서 ObjectMapper로 DTO에 파싱하는 과정이 추가적으로 필요함
+ */
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private final AuthenticationSuccessHandler authenticationSuccessHandler;

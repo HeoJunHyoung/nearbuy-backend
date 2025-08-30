@@ -1,5 +1,6 @@
 package io.github.junhyoung.nearbuy.auth.web.filter;
 
+import io.github.junhyoung.nearbuy.auth.web.dto.UserPrincipal;
 import io.github.junhyoung.nearbuy.auth.web.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,7 +31,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 2. 토큰이 유효하지 않으면 바로 에러 응답을 보내고 필터 체인을 종료
         if (!StringUtils.hasText(accessToken) || !JWTUtil.isValid(accessToken, true)) {
-            // 토큰이 없거나 유효하지 않은 경우, 다음 필터로 계속 진행
             filterChain.doFilter(request, response);
             return;
         }
@@ -56,7 +56,9 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = JWTUtil.getRole(accessToken);
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-        Authentication auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
+        // UserPrincipal 객체를 생성하여 principal로 사용합니다.
+        UserPrincipal userPrincipal = new UserPrincipal(username, authorities);
+        Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.authorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 }

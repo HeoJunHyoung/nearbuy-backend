@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import jakarta.servlet.http.Cookie;
 @Component
-@Qualifier("SocialSuccessHandler")
+@Qualifier("SocialLoginSuccessHandler")
 @RequiredArgsConstructor
-public class SocialSuccessHandler implements AuthenticationSuccessHandler {
+public class SocialLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtProvider jwtProvider;
 
