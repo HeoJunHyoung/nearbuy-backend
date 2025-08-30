@@ -93,16 +93,20 @@ sequenceDiagram
 
     Client->>+JwtController: 1. 토큰 재발급 요청 (POST /jwt/refresh)
     JwtController->>+JwtService: 2. 재발급 로직 호출 (refreshRotate)
-    JwtService->>+JWTUtil: 3. Refresh Token 유효성 검증
-    JWTUtil-->>-JwtService: 4. 검증 결과 반환
+    
+    JwtService->>JWTUtil: 3. Refresh Token 유효성 검증
+    JWTUtil-->>JwtService: 4. 검증 결과 반환
+    
     JwtService->>RefreshRepository: 5. DB에 토큰 존재 여부 확인
-    RefreshRepository-->>-JwtService: 6. 확인 결과 반환
+    RefreshRepository-->>JwtService: 6. 확인 결과 반환
+    
     alt 토큰 유효하고 DB에 존재
         JwtService->>JWTUtil: 7. 신규 Access/Refresh Token 생성
-        JWTUtil-->>-JwtService: 8. 신규 토큰 반환
+        JWTUtil-->>JwtService: 8. 신규 토큰 반환
         JwtService->>RefreshRepository: 9. 기존 Refresh Token 삭제
         JwtService->>RefreshRepository: 10. 신규 Refresh Token 저장
     end
+    
     JwtService-->>-JwtController: 11. 처리 결과 DTO 반환
     JwtController-->>-Client: 12. 신규 토큰 또는 에러 응답 (JSON)
 ```
