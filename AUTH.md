@@ -29,11 +29,10 @@
 
 - 🚪 **로그아웃**: `RefreshTokenLogoutHandler`가 DB에 저장된 Refresh 토큰을 삭제하여 무효화시킵니다.
 
+---
 
 ## 2.🌊 NearBuy 인증/인가 흐름 시퀀스 다이어그램
 이 문서는 NearBuy 프로젝트의 핵심 인증/인가 흐름을 Mermaid 시퀀스 다이어그램으로 시각화하여 표현합니다.
-
----
 
 ### 2.1. 자체 로그인 흐름 (`POST /login`)
 
@@ -46,18 +45,18 @@ sequenceDiagram
     participant SuccessHandler as "LocalLogin<br/>SuccessHandler"
     participant JwtProvider
 
-    Client->>+LoginFilter: 1. 로그인 요청 (POST /login with JSON Body)
+    Client->>+LoginFilter: 1. 로그인 요청 (POST /login)
     LoginFilter->>+AuthManager: 2. 인증 위임 (AuthenticationToken 생성)
     AuthManager->>+LoginService: 3. 사용자 정보 요청 (loadUserByUsername)
     LoginService-->>-AuthManager: 4. UserDetails 반환 (DB에서 조회)
     Note right of AuthManager: 비밀번호 비교 및 인증 수행
-    AuthManager-->>-LoginFilter: 5. 인증 성공 (인증된 Authentication 객체 반환)
-    LoginFilter->>+SuccessHandler: 6. 성공 후처리 위임
+    AuthManager-->>-LoginFilter: 5. 인증 성공 (인증된 Auth 객체 반환)
+    LoginFilter->>+SuccessHandler: 6. 성공 후처리 위임 (onAuthenticationSuccess)
     SuccessHandler->>+JwtProvider: 7. JWT 발급 요청 (issueTokens)
     JwtProvider-->>-SuccessHandler: 8. Access/Refresh Token 반환
-    SuccessHandler-->>-Client: 9. JWT 응답 (JSON)
-    deactivate SuccessHandler
-    deactivate LoginFilter
+    Note right of SuccessHandler: Handler가 Response에 직접 JWT를 작성
+    SuccessHandler-->>-LoginFilter: 9. 후처리 완료 (void return)
+    LoginFilter-->>-Client: 10. 최종 응답
 ```
 ### 2.2. API 요청 및 인가 흐름 (JWT 사용)
 ```mermaid
@@ -92,23 +91,20 @@ sequenceDiagram
     participant JWTUtil
     participant RefreshRepository as "Refresh<br/>Repository"
 
-    Client->>+JwtController: 1. 토큰 재발급 요청 (POST /jwt/refresh with RefreshToken)
+    Client->>+JwtController: 1. 토큰 재발급 요청 (POST /jwt/refresh)
     JwtController->>+JwtService: 2. 재발급 로직 호출 (refreshRotate)
     JwtService->>+JWTUtil: 3. Refresh Token 유효성 검증
     JWTUtil-->>-JwtService: 4. 검증 결과 반환
     JwtService->>RefreshRepository: 5. DB에 토큰 존재 여부 확인
-    RefreshRepository-->>JwtService: 6. 확인 결과 반환
+    RefreshRepository-->>-JwtService: 6. 확인 결과 반환
     alt 토큰 유효하고 DB에 존재
         JwtService->>JWTUtil: 7. 신규 Access/Refresh Token 생성
-        JWTUtil-->>JwtService: 8. 신규 토큰 반환
-        JwtService->>RefreshRepository: 9. 기존 Refresh Token 삭제 (deleteByRefresh)
-        JwtService->>RefreshRepository: 10. 신규 Refresh Token 저장 (save)
-        JwtService-->>-JwtController: 11. 신규 토큰 DTO 반환
-        JwtController-->>-Client: 12. 신규 토큰 응답 (JSON)
-    else 토큰 유효하지 않음
-        JwtService-->>Client: 에러 응답
+        JWTUtil-->>-JwtService: 8. 신규 토큰 반환
+        JwtService->>RefreshRepository: 9. 기존 Refresh Token 삭제
+        JwtService->>RefreshRepository: 10. 신규 Refresh Token 저장
     end
-    deactivate JwtController
+    JwtService-->>-JwtController: 11. 처리 결과 DTO 반환
+    JwtController-->>-Client: 12. 신규 토큰 또는 에러 응답 (JSON)
 ```
 
 ---
