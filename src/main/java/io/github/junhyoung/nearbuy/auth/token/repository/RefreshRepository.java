@@ -1,6 +1,6 @@
-package io.github.junhyoung.nearbuy.jwt.repository;
+package io.github.junhyoung.nearbuy.auth.token.repository;
 
-import io.github.junhyoung.nearbuy.jwt.entity.RefreshEntity;
+import io.github.junhyoung.nearbuy.auth.token.entity.RefreshEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 

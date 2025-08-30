@@ -1,6 +1,6 @@
 package io.github.junhyoung.nearbuy.config;
 
-import io.github.junhyoung.nearbuy.jwt.repository.RefreshRepository;
+import io.github.junhyoung.nearbuy.auth.token.repository.RefreshRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
-package io.github.junhyoung.nearbuy.auth.filter;
+package io.github.junhyoung.nearbuy.auth.web.filter;
 
-import io.github.junhyoung.nearbuy.auth.dto.LoginRequestDto;
+import io.github.junhyoung.nearbuy.auth.web.dto.LoginRequestDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;

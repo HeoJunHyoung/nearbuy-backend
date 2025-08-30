@@ -1,9 +1,6 @@
-package io.github.junhyoung.nearbuy.auth.handler;
+package io.github.junhyoung.nearbuy.auth.web.handler;
 
-import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
-import io.github.junhyoung.nearbuy.jwt.service.JwtProvider;
-import io.github.junhyoung.nearbuy.jwt.service.JwtService;
-import jakarta.servlet.ServletException;
+import io.github.junhyoung.nearbuy.auth.token.provider.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

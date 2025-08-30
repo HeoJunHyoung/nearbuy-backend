@@ -1,6 +1,6 @@
-package io.github.junhyoung.nearbuy.auth.filter;
+package io.github.junhyoung.nearbuy.auth.web.filter;
 
-import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
+import io.github.junhyoung.nearbuy.auth.web.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-    
+
     // 헤더에서 토큰 정보를 추출하는 책임을 담당하는 private 메서드
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);

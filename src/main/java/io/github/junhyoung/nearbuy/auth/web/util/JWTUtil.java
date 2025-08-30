@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.auth.util;
+package io.github.junhyoung.nearbuy.auth.web.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

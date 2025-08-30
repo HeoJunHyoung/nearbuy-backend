@@ -1,9 +1,9 @@
 package io.github.junhyoung.nearbuy.config;
 
-import io.github.junhyoung.nearbuy.auth.filter.JWTFilter;
-import io.github.junhyoung.nearbuy.auth.filter.LoginFilter;
-import io.github.junhyoung.nearbuy.auth.handler.RefreshTokenLogoutHandler;
-import io.github.junhyoung.nearbuy.jwt.service.JwtService;
+import io.github.junhyoung.nearbuy.auth.web.filter.JWTFilter;
+import io.github.junhyoung.nearbuy.auth.web.filter.LoginFilter;
+import io.github.junhyoung.nearbuy.auth.web.handler.RefreshTokenLogoutHandler;
+import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

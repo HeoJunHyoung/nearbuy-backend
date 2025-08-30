@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.jwt.dto.request;
+package io.github.junhyoung.nearbuy.auth.token.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

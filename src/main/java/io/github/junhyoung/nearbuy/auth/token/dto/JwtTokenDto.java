@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.jwt.dto;
+package io.github.junhyoung.nearbuy.auth.token.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

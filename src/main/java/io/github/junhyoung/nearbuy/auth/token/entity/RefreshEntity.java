@@ -1,4 +1,4 @@
-package io.github.junhyoung.nearbuy.jwt.entity;
+package io.github.junhyoung.nearbuy.auth.token.entity;
 
 import io.github.junhyoung.nearbuy.global.entity.BaseEntity;
 import jakarta.persistence.Entity;

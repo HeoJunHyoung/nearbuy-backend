@@ -1,7 +1,8 @@
-package io.github.junhyoung.nearbuy.jwt.service;
+package io.github.junhyoung.nearbuy.auth.token.provider;
 
-import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
-import io.github.junhyoung.nearbuy.jwt.dto.JwtTokenDto;
+import io.github.junhyoung.nearbuy.auth.web.util.JWTUtil;
+import io.github.junhyoung.nearbuy.auth.token.dto.JwtTokenDto;
+import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

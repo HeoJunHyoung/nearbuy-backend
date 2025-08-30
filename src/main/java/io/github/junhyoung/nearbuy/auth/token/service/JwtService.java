@@ -1,10 +1,10 @@
-package io.github.junhyoung.nearbuy.jwt.service;
+package io.github.junhyoung.nearbuy.auth.token.service;
 
-import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
-import io.github.junhyoung.nearbuy.jwt.dto.request.RefreshRequestDto;
-import io.github.junhyoung.nearbuy.jwt.dto.response.JWTResponseDto;
-import io.github.junhyoung.nearbuy.jwt.entity.RefreshEntity;
-import io.github.junhyoung.nearbuy.jwt.repository.RefreshRepository;
+import io.github.junhyoung.nearbuy.auth.web.util.JWTUtil;
+import io.github.junhyoung.nearbuy.auth.token.dto.request.RefreshRequestDto;
+import io.github.junhyoung.nearbuy.auth.token.dto.response.JWTResponseDto;
+import io.github.junhyoung.nearbuy.auth.token.entity.RefreshEntity;
+import io.github.junhyoung.nearbuy.auth.token.repository.RefreshRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

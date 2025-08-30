@@ -1,21 +1,18 @@
-package io.github.junhyoung.nearbuy.auth.handler;
+package io.github.junhyoung.nearbuy.auth.web.handler;
 
-import io.github.junhyoung.nearbuy.auth.dto.LogoutRequestDto;
-import io.github.junhyoung.nearbuy.auth.util.JWTUtil;
-import io.github.junhyoung.nearbuy.jwt.service.JwtService;
+import io.github.junhyoung.nearbuy.auth.web.dto.LogoutRequestDto;
+import io.github.junhyoung.nearbuy.auth.web.util.JWTUtil;
+import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 @Slf4j
 public class RefreshTokenLogoutHandler implements LogoutHandler {
