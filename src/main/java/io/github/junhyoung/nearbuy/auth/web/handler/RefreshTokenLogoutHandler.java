@@ -5,24 +5,24 @@ import io.github.junhyoung.nearbuy.auth.web.util.JWTUtil;
 import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
+@Component
 @Slf4j
+@RequiredArgsConstructor
 public class RefreshTokenLogoutHandler implements LogoutHandler {
 
     private final JwtService jwtService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public RefreshTokenLogoutHandler(JwtService jwtService) {
-        this.jwtService = jwtService;
-    }
+    private final ObjectMapper objectMapper;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {

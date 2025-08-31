@@ -1,5 +1,6 @@
 package io.github.junhyoung.nearbuy.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.junhyoung.nearbuy.auth.web.filter.JWTFilter;
 import io.github.junhyoung.nearbuy.auth.web.filter.LoginFilter;
 import io.github.junhyoung.nearbuy.auth.web.handler.RefreshTokenLogoutHandler;
@@ -37,19 +38,22 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final AuthenticationSuccessHandler localLoginSuccessHandler;
     private final AuthenticationSuccessHandler socialLoginSuccessHandler;
-    private final JwtService jwtService;
     private final SocialLoginService socialLoginService;
+    private final ObjectMapper objectMapper;
+    private final JwtService jwtService;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,
                           @Qualifier("LocalLoginSuccessHandler") AuthenticationSuccessHandler localLoginSuccessHandler,
                           @Qualifier("SocialLoginSuccessHandler") AuthenticationSuccessHandler socialLoginSuccessHandler,
-                          JwtService jwtService,
-                          SocialLoginService socialLoginService) {
+                          SocialLoginService socialLoginService,
+                          ObjectMapper objectMapper,
+                          JwtService jwtService) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.localLoginSuccessHandler = localLoginSuccessHandler;
         this.socialLoginSuccessHandler = socialLoginSuccessHandler;
-        this.jwtService = jwtService;
         this.socialLoginService = socialLoginService;
+        this.objectMapper = objectMapper;
+        this.jwtService = jwtService;
     }
 
     // 비밀번호 암호화 Bean
@@ -108,7 +112,7 @@ public class SecurityConfig {
 
                 // 3. 로그아웃 handler
                 .logout(logout -> logout
-                        .addLogoutHandler(new RefreshTokenLogoutHandler(jwtService)))
+                        .addLogoutHandler(new RefreshTokenLogoutHandler(jwtService, objectMapper)))
 
                 // 4. 인가 규칙
                 .authorizeHttpRequests(auth -> auth
