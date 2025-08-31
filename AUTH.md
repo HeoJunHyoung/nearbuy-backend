@@ -59,8 +59,6 @@ sequenceDiagram
     LoginFilter-->>-Client: 10. 최종 응답
 ```
 ### 2.2. 소셜 로그인 흐름 (`POST /login`)
-> 소셜 로그인은 2단계로 진행됩니다. 먼저 소셜 플랫폼을 통해 인증을 받고 `HttpOnly` 쿠키(Refresh Token)를 발급받은 후, 해당 쿠키를 사용해 서버로부터 정식 JWT(Access/Refresh Token)를 발급받습니다.
-#### **2.2.1. 인증 및 쿠키 발급 (`GET /oauth2/authorization/{provider}`)**
 ```mermaid
 sequenceDiagram
     actor Client
@@ -89,33 +87,7 @@ sequenceDiagram
     Note right of SuccessHandler: Refresh Token을 HttpOnly<br/>쿠키에 담아 리다이렉트 응답 생성
     SuccessHandler-->>-Client: 10. FE로 리다이렉트 (with Cookie)
 ```
-#### **2.2.2. 쿠키를 이용한 JWT 교환 (POST /jwt/exchange)**
-```mermaid
-sequenceDiagram
-    actor Client
-    participant JwtController
-    participant JwtService
-    participant JWTUtil
-    participant RefreshRepository as "Refresh<br/>Repository"
 
-    Client->>+JwtController: 1. 토큰 교환 요청 (with HttpOnly Cookie)
-    JwtController->>+JwtService: 2. 토큰 교환 로직 호출 (cookie2Header)
-    
-    JwtService->>JwtService: 3. 요청의 쿠키에서 Refresh Token 추출
-    JwtService->>JWTUtil: 4. Refresh Token 유효성 검증
-    JWTUtil-->>JwtService: 5. 검증 결과 반환
-    
-    alt 토큰 유효
-        JwtService->>JWTUtil: 6. 신규 Access/Refresh Token 생성
-        JWTUtil-->>JwtService: 7. 신규 토큰 반환
-        JwtService->>RefreshRepository: 8. 기존 Refresh Token 삭제 (있을 경우)
-        JwtService->>RefreshRepository: 9. 신규 Refresh Token 저장
-    end
-    
-    JwtService-->>-JwtController: 10. 처리 결과 DTO 반환
-    Note right of JwtController: 기존 쿠키를 무효화하는<br/>응답 헤더 추가
-    JwtController-->>-Client: 11. 신규 토큰 응답 (JSON)
-```
 
 ### 2.3. API 요청 및 인가 흐름 (JWT 사용)
 ```mermaid
