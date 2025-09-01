@@ -1,58 +1,27 @@
 package io.github.junhyoung.nearbuy.global.exception;
-
-import io.github.junhyoung.nearbuy.global.exception.business.InvalidPasswordException;
-import io.github.junhyoung.nearbuy.global.exception.business.PostNotFoundException;
-import io.github.junhyoung.nearbuy.global.exception.business.UserAlreadyExistException;
-import org.springframework.http.HttpStatus;
+import io.github.junhyoung.nearbuy.global.common.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalControllerAdvice {
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<String> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+    // BusinessException을 상속받는 모든 커스텀 예외를 일괄 처리
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e) {
+        ErrorCode errorCode = e.getErrorCode();
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+                .status(errorCode.getStatus())
+                .body(ApiResponse.error(errorCode));
     }
 
-    @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<String> handlePostNotFoundException(PostNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
-    }
-
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<String> handleInvalidPasswordException(UserAlreadyExistException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
-    }
-
+    // Spring Security의 AccessDeniedException 처리
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<ApiResponse<Object>> handleAccessDeniedException(AccessDeniedException e) {
         return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(ex.getMessage());
+                .status(ErrorCode.ACCESS_DENIED.getStatus())
+                .body(ApiResponse.error(ErrorCode.ACCESS_DENIED));
     }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
-    }
-
 }

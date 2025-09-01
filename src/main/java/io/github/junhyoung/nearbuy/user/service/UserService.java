@@ -3,6 +3,7 @@ package io.github.junhyoung.nearbuy.user.service;
 import io.github.junhyoung.nearbuy.auth.token.service.JwtService;
 import io.github.junhyoung.nearbuy.auth.web.dto.UserPrincipal;
 import io.github.junhyoung.nearbuy.global.exception.business.InvalidPasswordException;
+import io.github.junhyoung.nearbuy.global.exception.business.NotMatchPasswordException;
 import io.github.junhyoung.nearbuy.global.exception.business.UserAlreadyExistException;
 import io.github.junhyoung.nearbuy.global.exception.business.UserNotFoundException;
 import io.github.junhyoung.nearbuy.user.dto.request.*;
@@ -63,7 +64,7 @@ public class UserService {
      */
     public UserResponseDto readUserById(Long userId) {
         UserEntity entity = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         return UserResponseDto.createUserResponseDto(entity);
     }
@@ -74,7 +75,7 @@ public class UserService {
     @Transactional
     public Long updateLocalUser(Long userId, UserUpdateRequestDto dto) {
         UserEntity entity = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         entity.updateUser(dto.getNickname(), dto.getEmail());
         return entity.getId();
@@ -83,7 +84,7 @@ public class UserService {
     @Transactional
     public void updateUserPassword(Long userId, UserUpdatePasswordRequestDto dto) {
         UserEntity entity = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         // 엔티티의 비즈니스 메서드 호출
         entity.updateUserPassword(
@@ -100,7 +101,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Long currentUserId, Long targetId, UserRoleType currentUserRole){
         UserEntity userToDelete = userRepository.findById(targetId)
-                .orElseThrow(() -> new UserNotFoundException("삭제할 사용자를 찾을 수 없습니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         validateDeleteAuthorization(currentUserId, targetId, currentUserRole);
 
@@ -120,10 +121,10 @@ public class UserService {
      */
     private void validateJoinRequest(UserJoinRequestDto dto) {
         if (!dto.getOriginPassword().equals(dto.getConfirmPassword())) {
-            throw new InvalidPasswordException("비밀번호가 일치하지 않습니다.");
+            throw new NotMatchPasswordException();
         }
         if (userRepository.existsByUsername(dto.getUsername())) {
-            throw new UserAlreadyExistException("이미 존재하는 아이디입니다.");
+            throw new UserAlreadyExistException();
         }
     }
 

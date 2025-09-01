@@ -1,18 +1,9 @@
 package io.github.junhyoung.nearbuy.global.exception.business;
 
-public class PostNotFoundException extends RuntimeException{
+import io.github.junhyoung.nearbuy.global.exception.BusinessException;
+import io.github.junhyoung.nearbuy.global.exception.ErrorCode;
+public class PostNotFoundException extends BusinessException {
     public PostNotFoundException() {
-    }
-
-    public PostNotFoundException(String message) {
-        super(message);
-    }
-
-    public PostNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public PostNotFoundException(Throwable cause) {
-        super(cause);
+        super(ErrorCode.POST_NOT_FOUND);
     }
 }

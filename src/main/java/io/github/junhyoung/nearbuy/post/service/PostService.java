@@ -1,5 +1,7 @@
 package io.github.junhyoung.nearbuy.post.service;
 
+import io.github.junhyoung.nearbuy.global.exception.business.PostNotFoundException;
+import io.github.junhyoung.nearbuy.global.exception.business.UserNotFoundException;
 import io.github.junhyoung.nearbuy.post.dto.request.PostCreateRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.request.PostUpdateRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
@@ -31,7 +33,7 @@ public class PostService {
     @Transactional
     public void createPost(Long authorId, PostCreateRequestDto dto) {
         UserEntity author = userRepository.findById(authorId)
-                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 회원입니다."));
+                .orElseThrow(UserNotFoundException::new);
 
         PostEntity postEntity = dto.toEntity(author);
         postEntity.setUserEntity(author);
@@ -54,7 +56,7 @@ public class PostService {
     // 게시글 세부 조회
     public PostDetailResponseDto readPostDetail(Long postId) {
         PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시글입니다."));
+                .orElseThrow(PostNotFoundException::new);
 
         return PostDetailResponseDto.builder()
                 .postEntity(postEntity)
@@ -65,7 +67,8 @@ public class PostService {
     @Transactional
     public void updatePost(Long postId, Long userId, PostUpdateRequestDto dto) {
         PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시글입니다."));
+                .orElseThrow(PostNotFoundException::new);
+
         if (!postEntity.getUserEntity().getId().equals(userId)) {
             throw new AccessDeniedException("게시글 수정은 작성자만 가능합니다.");
         }
@@ -76,7 +79,8 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId, Long userId) {
         PostEntity postEntity = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시글입니다."));
+                .orElseThrow(PostNotFoundException::new);
+
         if (!postEntity.getUserEntity().getId().equals(userId)) {
             throw new AccessDeniedException("게시글 삭제는 작성자만 가능합니다.");
         }
