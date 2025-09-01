@@ -44,7 +44,7 @@ public class PostController {
     }
 
     // 게시글 세부 정보 수정
-    @PutMapping("{postId}")
+    @PatchMapping("{postId}")
     public ResponseEntity<String> updatePostApi(@PathVariable Long postId,
                                                 @AuthenticationPrincipal UserPrincipal userPrincipal,
                                                 @RequestBody PostUpdateRequestDto dto) {

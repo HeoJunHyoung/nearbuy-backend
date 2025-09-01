@@ -63,14 +63,25 @@ public class PostEntity extends BaseEntity {
     }
 
     //== 내부 메서드 ==//
-
     public void updatePostDetail(PostUpdateRequestDto dto) {
-        this.title = dto.getTitle();
-        this.contents = dto.getContents();
-        this.postStatus = dto.getPostStatus();
-        this.price = dto.getPrice();
-        this.productCategory = dto.getProductCategory();
-        this.imageUrl = dto.getImageUrl();
+        if (dto.getTitle() != null) {
+            this.title = dto.getTitle();
+        }
+        if (dto.getContents() != null) {
+            this.contents = dto.getContents();
+        }
+        if (dto.getPostStatus() != null) {
+            this.postStatus = dto.getPostStatus();
+        }
+        if (dto.getPrice() != null) {
+            this.price = dto.getPrice();
+        }
+        if (dto.getProductCategory() != null) {
+            this.productCategory = dto.getProductCategory();
+        }
+        if (dto.getImageUrl() != null) {
+            this.imageUrl = dto.getImageUrl();
+        }
     }
 
 }

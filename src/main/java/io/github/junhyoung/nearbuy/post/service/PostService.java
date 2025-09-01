@@ -5,7 +5,6 @@ import io.github.junhyoung.nearbuy.post.dto.request.PostUpdateRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
 import io.github.junhyoung.nearbuy.post.entity.PostEntity;
-import io.github.junhyoung.nearbuy.post.entity.enumerate.PostStatus;
 import io.github.junhyoung.nearbuy.post.repository.PostRepository;
 import io.github.junhyoung.nearbuy.user.entity.UserEntity;
 import io.github.junhyoung.nearbuy.user.repository.UserRepository;
@@ -63,6 +62,7 @@ public class PostService {
     }
 
     // 게시글 세부 정보 수정
+    @Transactional
     public void updatePost(Long postId, Long userId, PostUpdateRequestDto dto) {
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시글입니다."));
@@ -73,6 +73,7 @@ public class PostService {
     }
 
     // 게시글 삭제
+    @Transactional
     public void deletePost(Long postId, Long userId) {
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시글입니다."));
