@@ -78,7 +78,7 @@ public class UserService {
     /**
      * 현재 로그인한 유저의 정보를 조회
      */
-    public UserResponseDto readUser(String username) {
+    public UserResponseDto readUserByUsername(String username) {
         UserEntity entity = findUserByUsername(username);
         return new UserResponseDto(entity.getUsername(), entity.getIsSocial(), entity.getNickname(), entity.getEmail());
     }
