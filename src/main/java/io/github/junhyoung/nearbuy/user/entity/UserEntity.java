@@ -78,11 +78,11 @@ public class UserEntity extends BaseEntity{
     public void updateUserPassword(String originPassword, String newPassword, String newConfirmPassword, PasswordEncoder passwordEncoder) {
         // 1. 기존 비밀번호 검증
         if (!passwordEncoder.matches(originPassword, this.password)) {
-            throw new InvalidPasswordException("기존 비밀번호가 일치하지 않습니다.");
+            throw new InvalidPasswordException();
         }
         // 2. 새 비밀번호 확인 일치 검증
         if (!newPassword.equals(newConfirmPassword)) {
-            throw new InvalidPasswordException("새 비밀번호가 서로 일치하지 않습니다.");
+            throw new InvalidPasswordException();
         }
         // 3. 새 비밀번호로 변경
         this.password = passwordEncoder.encode(newPassword);

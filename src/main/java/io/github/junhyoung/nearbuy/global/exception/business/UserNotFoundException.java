@@ -1,19 +1,10 @@
 package io.github.junhyoung.nearbuy.global.exception.business;
 
-public class UserNotFoundException extends RuntimeException{
+import io.github.junhyoung.nearbuy.global.exception.BusinessException;
+import io.github.junhyoung.nearbuy.global.exception.ErrorCode;
 
+public class UserNotFoundException extends BusinessException {
     public UserNotFoundException() {
-    }
-
-    public UserNotFoundException(String message) {
-        super(message);
-    }
-
-    public UserNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public UserNotFoundException(Throwable cause) {
-        super(cause);
+        super(ErrorCode.USER_NOT_FOUND);
     }
 }
