@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class UserDeleteRequestDto {
 
-    private String username;
+    private Long targetId;
 
 }

@@ -2,6 +2,7 @@ package io.github.junhyoung.nearbuy.global.exception;
 
 import io.github.junhyoung.nearbuy.global.exception.business.InvalidPasswordException;
 import io.github.junhyoung.nearbuy.global.exception.business.PostNotFoundException;
+import io.github.junhyoung.nearbuy.global.exception.business.UserAlreadyExistException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +29,13 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<String> handleInvalidPasswordException(UserAlreadyExistException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ex.getMessage());

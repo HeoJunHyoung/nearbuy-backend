@@ -1,6 +1,7 @@
 package io.github.junhyoung.nearbuy.user.entity;
 
 import io.github.junhyoung.nearbuy.global.entity.BaseEntity;
+import io.github.junhyoung.nearbuy.global.exception.business.InvalidPasswordException;
 import io.github.junhyoung.nearbuy.post.entity.PostEntity;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.SocialProviderType;
 import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
@@ -10,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +26,7 @@ public class UserEntity extends BaseEntity{
     @Column(name = "user_id")
     private Long id;
 
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostEntity> postEntityList = new ArrayList<>();
 
     @Column(name="username", unique = true, nullable = false, updatable = false)
@@ -68,12 +70,21 @@ public class UserEntity extends BaseEntity{
     }
 
     //== 내부 비즈니스 로직 ==//
-    public void updateUser(UserUpdateRequestDto userUpdateRequestDto) {
-        this.email = userUpdateRequestDto.getEmail();
-        this.nickname = userUpdateRequestDto.getNickname();
+    public void updateUser(String nickname, String email) {
+        this.email = email;
+        this.nickname = nickname;
     }
 
-    public void updateUserPassword(String newPassword) {
-        this.password = newPassword;
+    public void updateUserPassword(String originPassword, String newPassword, String newConfirmPassword, PasswordEncoder passwordEncoder) {
+        // 1. 기존 비밀번호 검증
+        if (!passwordEncoder.matches(originPassword, this.password)) {
+            throw new InvalidPasswordException("기존 비밀번호가 일치하지 않습니다.");
+        }
+        // 2. 새 비밀번호 확인 일치 검증
+        if (!newPassword.equals(newConfirmPassword)) {
+            throw new InvalidPasswordException("새 비밀번호가 서로 일치하지 않습니다.");
+        }
+        // 3. 새 비밀번호로 변경
+        this.password = passwordEncoder.encode(newPassword);
     }
 }
