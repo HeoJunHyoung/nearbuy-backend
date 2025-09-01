@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -31,20 +32,17 @@ public class JwtService {
             throw new RuntimeException("쿠키가 존재하지 않습니다.");
         }
 
-        String refreshToken = null;
-        for (Cookie cookie : cookies) {
-            if ("refreshToken".equals(cookie.getName())) {
-                refreshToken = cookie.getValue();
-                break;
-            }
-        }
 
-        if (refreshToken == null) {
-            throw new RuntimeException("refreshToken 쿠키가 없습니다.");
-        }
+        String refreshToken = Arrays.stream(cookies)
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new RuntimeException("refreshToken 쿠키가 없습니다."));
 
-        if (!JWTUtil.isValid(refreshToken, false)) {
-            throw new RuntimeException("유효하지 않은 refreshToken입니다.");
+
+        // 유효성 검사와 DB 존재 여부 확인을 한 번에 처리
+        if (!JWTUtil.isValid(refreshToken, false) || !existsRefresh(refreshToken)) {
+            throw new RuntimeException("유효하지 않거나 DB에 존재하지 않는 refreshToken입니다.");
         }
 
         Long id = JWTUtil.getId(refreshToken);
@@ -56,7 +54,7 @@ public class JwtService {
 
         // Redis에서 기존 토큰 삭제 후 신규 토큰 저장 (Rotate)
         removeRefresh(refreshToken);
-        addRefresh(username, newRefreshToken);
+        addRefresh(id, newRefreshToken);
 
         // 기존 쿠키 제거
         Cookie refreshCookie = new Cookie("refreshToken", null);
@@ -73,13 +71,8 @@ public class JwtService {
     public JWTResponseDto refreshRotate(RefreshRequestDto dto) {
         String refreshToken = dto.getRefreshToken();
 
-        if (!JWTUtil.isValid(refreshToken, false)) {
-            throw new RuntimeException("유효하지 않은 refreshToken입니다.");
-        }
-
-        // Redis에 해당 토큰이 존재하는지 확인
-        if (Boolean.FALSE.equals(existsRefresh(refreshToken))) {
-            throw new RuntimeException("DB에 존재하지 않는 유효하지 않은 refreshToken입니다.");
+        if (!JWTUtil.isValid(refreshToken, false) || Boolean.FALSE.equals(existsRefresh(refreshToken))) {
+            throw new RuntimeException("유효하지 않거나 DB에 존재하지 않는 refreshToken입니다.");
         }
 
         Long id = JWTUtil.getId(refreshToken);
@@ -91,7 +84,7 @@ public class JwtService {
 
         // Redis에서 기존 토큰 삭제 후 신규 토큰 저장 (Rotate)
         removeRefresh(refreshToken);
-        addRefresh(username, newRefreshToken);
+        addRefresh(id, newRefreshToken);
 
         return new JWTResponseDto(newAccessToken, newRefreshToken);
     }
@@ -102,24 +95,27 @@ public class JwtService {
         return refreshToken.equals(storedToken);
     }
 
+    // userId를 키로 사용
     @Transactional
-    public void addRefresh(String username, String refreshToken) {
+    public void addRefresh(Long userId, String refreshToken) {
         redisTemplate.opsForValue().set(
-                REFRESH_TOKEN_PREFIX + username,
+                REFRESH_TOKEN_PREFIX + userId,
                 refreshToken,
                 REFRESH_TOKEN_EXPIRATION_DAYS,
                 TimeUnit.DAYS
         );
     }
 
+    // 토큰에서 userId를 추출하여 삭제
     @Transactional
     public void removeRefresh(String refreshToken) {
-        String username = JWTUtil.getUsername(refreshToken);
-        redisTemplate.delete(REFRESH_TOKEN_PREFIX + username);
+        Long userId = JWTUtil.getId(refreshToken);
+        redisTemplate.delete(REFRESH_TOKEN_PREFIX + userId);
     }
 
+    // 회원 탈퇴 시 userId로 직접 삭제
     @Transactional
-    public void removeRefreshUser(String username) {
-        redisTemplate.delete(REFRESH_TOKEN_PREFIX + username);
+    public void removeRefreshUser(Long userId) {
+        redisTemplate.delete(REFRESH_TOKEN_PREFIX + userId);
     }
 }

@@ -87,7 +87,7 @@ public class SocialLoginService extends DefaultOAuth2UserService {
             UserUpdateRequestDto updateDto = new UserUpdateRequestDto();
             updateDto.setEmail(attributes.email());
             updateDto.setNickname(attributes.nickname());
-            existingUser.updateUser(updateDto);
+            existingUser.updateUser(attributes.nickname(), attributes.email());
             return userRepository.save(existingUser);
         } else {
             // 신규 유저이면, 새로 생성

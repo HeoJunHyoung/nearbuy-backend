@@ -28,7 +28,7 @@ public class JwtProvider {
     // Refresh 토큰 생성 및 저장 로직 (중복 제거)
     private String createAndSaveRefreshToken(Long id, String username, String role) {
         String refreshToken = JWTUtil.createJWT(id, username, role, false);
-        jwtService.addRefresh(username, refreshToken);
+        jwtService.addRefresh(id, refreshToken);
         return refreshToken;
     }
 
