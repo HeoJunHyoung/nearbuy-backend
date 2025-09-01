@@ -26,7 +26,7 @@ public class UserEntity extends BaseEntity{
     @Column(name = "user_id")
     private Long id;
 
-    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostEntity> postEntityList = new ArrayList<>();
 
     @Column(name="username", unique = true, nullable = false, updatable = false)

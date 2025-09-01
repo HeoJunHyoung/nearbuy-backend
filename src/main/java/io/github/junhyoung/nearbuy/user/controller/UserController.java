@@ -58,7 +58,8 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<Boolean> deleteUserApi(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                  @Validated @RequestBody UserDeleteRequestDto dto) {
-        userService.deleteUser(userPrincipal.id(), dto.getTargetId(), UserRoleType.valueOf(userPrincipal.getRole()));
+        UserRoleType currentUserRole = UserRoleType.fromRoleName(userPrincipal.getRole());
+        userService.deleteUser(userPrincipal.id(), dto.getTargetId(), currentUserRole);
         return ResponseEntity.status(200).body(true);
     }
 

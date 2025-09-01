@@ -90,8 +90,8 @@ public class JwtService {
     }
 
     public Boolean existsRefresh(String refreshToken) {
-        String username = JWTUtil.getUsername(refreshToken);
-        String storedToken = redisTemplate.opsForValue().get(REFRESH_TOKEN_PREFIX + username);
+        Long userId = JWTUtil.getId(refreshToken);
+        String storedToken = redisTemplate.opsForValue().get(REFRESH_TOKEN_PREFIX + userId);
         return refreshToken.equals(storedToken);
     }
 
