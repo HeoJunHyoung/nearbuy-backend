@@ -7,7 +7,6 @@ import io.github.junhyoung.nearbuy.user.entity.enumerate.UserRoleType;
 import io.github.junhyoung.nearbuy.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;

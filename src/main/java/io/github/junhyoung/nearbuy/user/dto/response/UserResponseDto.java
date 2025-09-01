@@ -10,12 +10,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserResponseDto {
-    String username;
-    Boolean social;
-    String nickname;
-    String email;
+    private Long userId;
+    private String username;
+    private Boolean social;
+    private String nickname;
+    private String email;
 
-    private UserResponseDto(String username, Boolean social, String nickname, String email) {
+    private UserResponseDto(Long userId, String username, Boolean social, String nickname, String email) {
+        this.userId = userId;
         this.username = username;
         this.social = social;
         this.nickname = nickname;
@@ -23,7 +25,13 @@ public class UserResponseDto {
     }
 
     public static UserResponseDto createUserResponseDto(UserEntity userEntity) {
-        return new UserResponseDto(userEntity.getUsername(), userEntity.getIsSocial(), userEntity.getNickname(), userEntity.getEmail());
+        return new UserResponseDto(
+                userEntity.getId(),
+                userEntity.getUsername(),
+                userEntity.getIsSocial(),
+                userEntity.getNickname(),
+                userEntity.getEmail()
+        );
     }
 
 }
