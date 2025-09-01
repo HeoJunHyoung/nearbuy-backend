@@ -37,7 +37,7 @@ public class UserController {
     // 유저 정보
     @GetMapping
     public UserResponseDto userMeApi(@AuthenticationPrincipal UserPrincipal userPrincipal) {
-        return userService.readUser(userPrincipal.username());
+        return userService.readUserByUsername(userPrincipal.username());
     }
 
     // 유저 수정 (자체 로그인 유저만)
