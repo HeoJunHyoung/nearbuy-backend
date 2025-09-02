@@ -24,14 +24,16 @@ public class UserResponseDto {
         this.email = email;
     }
 
-    public static UserResponseDto createUserResponseDto(UserEntity userEntity) {
-        return new UserResponseDto(
-                userEntity.getId(),
-                userEntity.getUsername(),
-                userEntity.getIsSocial(),
-                userEntity.getNickname(),
-                userEntity.getEmail()
-        );
+    private UserResponseDto(UserEntity userEntity) {
+        this.userId = userEntity.getId();
+        this.username = userEntity.getUsername();
+        this.social = userEntity.getIsSocial();
+        this.nickname = userEntity.getNickname();
+        this.email = userEntity.getEmail();
+    }
+
+    public static UserResponseDto from(UserEntity userEntity) {
+        return new UserResponseDto(userEntity);
     }
 
 }
