@@ -26,7 +26,7 @@ public class PostResponseDto {
 
     private LocalDateTime createdAt;
 
-    private List<PostImageResponseDto> postImages = new ArrayList<>();
+    private PostImageResponseDto postImage;
 
     private PostResponseDto(PostEntity postEntity) {
         this.postId = postEntity.getId();
@@ -35,9 +35,10 @@ public class PostResponseDto {
         this.price = postEntity.getPrice();
         this.productCategory = postEntity.getProductCategory();
         this.createdAt = postEntity.getCreatedAt();
-        this.postImages = postEntity.getPostImageEntityList().stream()
+        this.postImage = postEntity.getPostImageEntityList().stream()
+                .findFirst()
                 .map(PostImageResponseDto::new)
-                .collect(Collectors.toList());
+                .orElse(null);
     }
 
     public static PostResponseDto from(PostEntity postEntity) {

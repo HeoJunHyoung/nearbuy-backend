@@ -28,10 +28,10 @@ public class PostController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ApiResponse<Void>> createPostApi(
                         @AuthenticationPrincipal UserPrincipal userPrincipal,
-                        @RequestPart("dto") PostCreateRequestDto dto,
+                        @RequestPart("postCreateRequestDto") PostCreateRequestDto postCreateRequestDto,
                         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
-        postService.createPost(userPrincipal.id(), dto, images);
+        postService.createPost(userPrincipal.id(), postCreateRequestDto, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
     }
 
