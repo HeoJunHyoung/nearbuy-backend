@@ -1,6 +1,7 @@
 package io.github.junhyoung.nearbuy.post.dto.response;
 
 import io.github.junhyoung.nearbuy.post.entity.PostEntity;
+import io.github.junhyoung.nearbuy.post.entity.enumerate.PostStatus;
 import io.github.junhyoung.nearbuy.post.entity.enumerate.ProductCategory;
 import lombok.*;
 
@@ -31,6 +32,8 @@ public class PostDetailResponseDto {
 
     private LocalDateTime createdAt;
 
+    private PostStatus status;
+
     private List<PostImageResponseDto> postImages = new ArrayList<>();
 
     private PostDetailResponseDto(PostEntity postEntity) {
@@ -42,6 +45,7 @@ public class PostDetailResponseDto {
         this.price = postEntity.getPrice();
         this.productCategory = postEntity.getProductCategory();
         this.createdAt = postEntity.getCreatedAt();
+        this.status = postEntity.getPostStatus();
         this.postImages = postEntity.getPostImageEntityList().stream()
                 .map(PostImageResponseDto::new)
                 .collect(Collectors.toList());
