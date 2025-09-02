@@ -30,8 +30,7 @@ public class PostDetailResponseDto {
 
     private String imageUrl;
 
-    @Builder
-    public PostDetailResponseDto(PostEntity postEntity) {
+    private PostDetailResponseDto(PostEntity postEntity) {
         this.postId = postEntity.getId();
         this.authorId = postEntity.getUserEntity().getId();
         this.authorNickname = postEntity.getUserEntity().getNickname();
@@ -41,6 +40,10 @@ public class PostDetailResponseDto {
         this.productCategory = postEntity.getProductCategory();
         this.createdAt = postEntity.getCreatedAt();
         this.imageUrl = postEntity.getImageUrl();
+    }
+
+    public static PostDetailResponseDto from(PostEntity postEntity) {
+        return new PostDetailResponseDto(postEntity);
     }
 
 }

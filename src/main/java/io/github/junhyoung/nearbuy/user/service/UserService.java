@@ -63,10 +63,10 @@ public class UserService {
      * 현재 로그인한 유저의 정보를 조회
      */
     public UserResponseDto readUserById(Long userId) {
-        UserEntity entity = userRepository.findById(userId)
+        UserEntity userEntity = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        return UserResponseDto.createUserResponseDto(entity);
+        return UserResponseDto.from(userEntity);
     }
 
     /**
@@ -99,17 +99,15 @@ public class UserService {
      * 유저 탈퇴 처리
      */
     @Transactional
-    public void deleteUser(Long currentUserId, Long targetId, UserRoleType currentUserRole){
-        UserEntity userToDelete = userRepository.findById(targetId)
+    public void deleteUser(Long currentUserId, Long targetId, UserRoleType currentUserRole) {
+        UserEntity userEntity = userRepository.findById(targetId)
                 .orElseThrow(UserNotFoundException::new);
 
         validateDeleteAuthorization(currentUserId, targetId, currentUserRole);
 
-        userRepository.delete(userToDelete);
-        jwtService.removeRefreshUser(userToDelete.getId()); // userId 전달
+        userRepository.delete(userEntity);
+        jwtService.removeRefreshUser(userEntity.getId()); // userId 전달
     }
-
-
 
 
     // =================================================================

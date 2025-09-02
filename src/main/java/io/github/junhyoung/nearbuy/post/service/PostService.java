@@ -46,9 +46,8 @@ public class PostService {
         List<PostEntity> posts = postRepository.findAll();
 
         List<PostResponseDto> postResponseDtos = posts.stream()
-                .map((post) -> PostResponseDto.builder()
-                        .postEntity(post)
-                        .build()).collect(Collectors.toList());
+                .map(PostResponseDto::from)
+                .collect(Collectors.toList());
 
         return postResponseDtos;
     }
@@ -58,9 +57,7 @@ public class PostService {
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
-        return PostDetailResponseDto.builder()
-                .postEntity(postEntity)
-                .build();
+        return PostDetailResponseDto.from(postEntity);
     }
 
     // 게시글 세부 정보 수정
