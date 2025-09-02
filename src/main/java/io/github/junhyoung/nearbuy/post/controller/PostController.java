@@ -8,6 +8,8 @@ import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
 import io.github.junhyoung.nearbuy.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +38,8 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PostResponseDto>>> readPostApi() {
-        List<PostResponseDto> postResponseDtos = postService.readPosts();
+    public ResponseEntity<ApiResponse<Slice<PostResponseDto>>> readPostApi(Pageable pageable) {
+        Slice<PostResponseDto> postResponseDtos = postService.readPosts(pageable);
         return ResponseEntity.ok(ApiResponse.success(postResponseDtos));
     }
 
