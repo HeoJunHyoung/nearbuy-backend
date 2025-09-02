@@ -122,7 +122,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/post", "/post/**").permitAll() // 게시글 조회는 모두 허용
                         .requestMatchers(HttpMethod.POST, "/user/exist", "/user/join").permitAll() // 회원가입
                         .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name()) // 유저 정보 조회
-                        .requestMatchers(HttpMethod.PUT, "/user").hasRole(UserRoleType.USER.name()) // 유저 정보 수정
+                        .requestMatchers(HttpMethod.PATCH, "/user").hasRole(UserRoleType.USER.name()) // 유저 정보 수정
                         .requestMatchers(HttpMethod.DELETE, "/user").hasRole(UserRoleType.USER.name()) // 유저 삭제
                         .anyRequest().authenticated()
                 )
