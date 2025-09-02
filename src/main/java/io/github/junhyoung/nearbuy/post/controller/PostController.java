@@ -9,10 +9,13 @@ import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
 import io.github.junhyoung.nearbuy.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,10 +25,13 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createPostApi(@AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                           @RequestBody PostCreateRequestDto dto) {
-        postService.createPost(userPrincipal.id(), dto);
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<ApiResponse<Void>> createPostApi(
+                        @AuthenticationPrincipal UserPrincipal userPrincipal,
+                        @RequestPart("dto") PostCreateRequestDto dto,
+                        @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+
+        postService.createPost(userPrincipal.id(), dto, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
     }
 
@@ -41,11 +47,14 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(postDetailResponseDto));
     }
 
-    @PatchMapping("{postId}")
-    public ResponseEntity<ApiResponse<Void>> updatePostApi(@PathVariable Long postId,
-                                                           @AuthenticationPrincipal UserPrincipal userPrincipal,
-                                                           @RequestBody PostUpdateRequestDto dto) {
-        postService.updatePost(postId, userPrincipal.id(), dto);
+    @PatchMapping(value = "/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<ApiResponse<Void>> updatePostApi(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestPart("dto") PostUpdateRequestDto dto,
+            @RequestPart(value = "addImages", required = false) List<MultipartFile> addImages) throws IOException {
+
+        postService.updatePost(postId, userPrincipal.id(), dto, addImages);
         return ResponseEntity.ok(ApiResponse.success());
     }
 

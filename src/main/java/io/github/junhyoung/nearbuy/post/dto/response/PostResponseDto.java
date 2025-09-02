@@ -23,8 +23,6 @@ public class PostResponseDto {
 
     private LocalDateTime createdAt;
 
-    private String imageUrl;
-
     private PostResponseDto(PostEntity postEntity) {
         this.postId = postEntity.getId();
         this.authorNickname = postEntity.getUserEntity().getNickname();
@@ -32,7 +30,6 @@ public class PostResponseDto {
         this.price = postEntity.getPrice();
         this.productCategory = postEntity.getProductCategory();
         this.createdAt = postEntity.getCreatedAt();
-        this.imageUrl = postEntity.getImageUrl();
     }
 
     public static PostResponseDto from(PostEntity postEntity) {
