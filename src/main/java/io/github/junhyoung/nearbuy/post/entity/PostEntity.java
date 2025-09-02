@@ -11,6 +11,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "post")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,8 +45,8 @@ public class PostEntity extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private ProductCategory productCategory;
 
-    @Column(name = "imageUrl")
-    private String imageUrl;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostImageEntity> postImageEntityList = new ArrayList<>();
 
     @Builder
     public PostEntity(UserEntity userEntity, String title, String contents, Integer price, ProductCategory productCategory, PostStatus postStatus, String imageUrl) {
@@ -53,13 +56,16 @@ public class PostEntity extends BaseEntity {
         this.price = price;
         this.productCategory = productCategory;
         this.postStatus = postStatus;
-        this.imageUrl = imageUrl;
     }
 
     //== 연관관계 편의 메서드 ==//
     public void setUserEntity(UserEntity userEntity) {
         this.userEntity = userEntity;   // 게시글 작성자 설정
         userEntity.getPostEntityList().add(this);   // 사용자가 작성한 게시글에 현재 게시글 추가
+    }
+
+    public void addPostImageEntity(PostImageEntity postImageEntity) {
+        this.postImageEntityList.add(postImageEntity);
     }
 
     //== 내부 메서드 ==//
@@ -78,9 +84,6 @@ public class PostEntity extends BaseEntity {
         }
         if (dto.getProductCategory() != null) {
             this.productCategory = dto.getProductCategory();
-        }
-        if (dto.getImageUrl() != null) {
-            this.imageUrl = dto.getImageUrl();
         }
     }
 

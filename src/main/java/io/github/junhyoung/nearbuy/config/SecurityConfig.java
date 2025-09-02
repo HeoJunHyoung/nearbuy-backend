@@ -118,6 +118,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login").permitAll() // 로그인
                         .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll() // JWT 관련 API 호출
+                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/post", "/post/**").permitAll() // 게시글 조회는 모두 허용
                         .requestMatchers(HttpMethod.POST, "/user/exist", "/user/join").permitAll() // 회원가입
                         .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name()) // 유저 정보 조회

@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,6 +26,6 @@ public class PostUpdateRequestDto {
 
     private PostStatus postStatus;
 
-    private String imageUrl;
+    private List<String> deleteImageUrls;
 
 }

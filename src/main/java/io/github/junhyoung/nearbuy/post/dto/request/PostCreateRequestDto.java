@@ -20,8 +20,6 @@ public class PostCreateRequestDto {
 
     private ProductCategory productCategory;
 
-    private String imageUrl;
-
     public PostEntity toEntity(UserEntity userEntity) {
         return PostEntity.builder()
                 .userEntity(userEntity)
@@ -30,7 +28,6 @@ public class PostCreateRequestDto {
                 .price(this.price)
                 .productCategory(this.productCategory)
                 .postStatus(PostStatus.ON_SALE)
-                .imageUrl(this.imageUrl)
                 .build();
     }
 
