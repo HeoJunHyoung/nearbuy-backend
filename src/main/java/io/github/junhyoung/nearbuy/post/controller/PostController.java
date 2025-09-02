@@ -3,7 +3,6 @@ package io.github.junhyoung.nearbuy.post.controller;
 import io.github.junhyoung.nearbuy.auth.web.dto.UserPrincipal;
 import io.github.junhyoung.nearbuy.global.common.ApiResponse;
 import io.github.junhyoung.nearbuy.post.dto.request.PostCreateRequestDto;
-import io.github.junhyoung.nearbuy.post.dto.request.PostDeleteRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.request.PostUpdateRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
