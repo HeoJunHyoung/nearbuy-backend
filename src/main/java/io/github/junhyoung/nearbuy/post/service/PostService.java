@@ -9,6 +9,7 @@ import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
 import io.github.junhyoung.nearbuy.post.entity.PostEntity;
 import io.github.junhyoung.nearbuy.post.entity.PostImageEntity;
+import io.github.junhyoung.nearbuy.post.repository.PostImageRepository;
 import io.github.junhyoung.nearbuy.post.repository.PostRepository;
 import io.github.junhyoung.nearbuy.user.entity.UserEntity;
 import io.github.junhyoung.nearbuy.user.repository.UserRepository;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
     private final UserRepository userRepository;
     private final FileStore fileStore;
 
@@ -94,7 +96,7 @@ public class PostService {
 
         // 4. 이미지 삭제 처리
         if (dto.getDeleteImageUrls() != null && !dto.getDeleteImageUrls().isEmpty()) {
-            postRepository.deleteByImageUrlIn(dto.getDeleteImageUrls());
+            postImageRepository.deleteByImageUrlIn(dto.getDeleteImageUrls());
         }
 
         // 5. 이미지 추가 처리
