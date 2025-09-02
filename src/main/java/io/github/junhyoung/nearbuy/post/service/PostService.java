@@ -5,6 +5,7 @@ import io.github.junhyoung.nearbuy.global.exception.business.UserNotFoundExcepti
 import io.github.junhyoung.nearbuy.global.util.FileStore;
 import io.github.junhyoung.nearbuy.post.dto.request.PostCreateRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.request.PostUpdateRequestDto;
+import io.github.junhyoung.nearbuy.post.dto.response.MyPostResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
 import io.github.junhyoung.nearbuy.post.entity.PostEntity;
@@ -67,6 +68,12 @@ public class PostService {
     public Slice<PostResponseDto> readPosts(Pageable pageable) {
         Slice<PostEntity> posts = postRepository.findAllWithUser(pageable);
         return posts.map(PostResponseDto::from);
+    }
+
+    // 나의 게시글 전체 조회
+    public Slice<MyPostResponseDto> readMyPosts(Long userId,Pageable pageable) {
+        Slice<PostEntity> posts = postRepository.findMyPosts(userId, pageable);
+        return posts.map(MyPostResponseDto::from);
     }
 
     // 게시글 세부 조회
