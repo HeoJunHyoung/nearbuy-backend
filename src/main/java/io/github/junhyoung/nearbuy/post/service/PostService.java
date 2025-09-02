@@ -15,6 +15,8 @@ import io.github.junhyoung.nearbuy.user.entity.UserEntity;
 import io.github.junhyoung.nearbuy.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -62,14 +64,9 @@ public class PostService {
     }
 
     // 게시글 전체 조회
-    public List<PostResponseDto> readPosts() {
-        List<PostEntity> posts = postRepository.findAll();
-
-        List<PostResponseDto> postResponseDtos = posts.stream()
-                .map(PostResponseDto::from)
-                .collect(Collectors.toList());
-
-        return postResponseDtos;
+    public Slice<PostResponseDto> readPosts(Pageable pageable) {
+        Slice<PostEntity> posts = postRepository.findAllWithUser(pageable);
+        return posts.map(PostResponseDto::from);
     }
 
     // 게시글 세부 조회
