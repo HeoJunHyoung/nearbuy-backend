@@ -66,6 +66,7 @@ public class PostEntity extends BaseEntity {
 
     public void addPostImageEntity(PostImageEntity postImageEntity) {
         this.postImageEntityList.add(postImageEntity);
+        postImageEntity.setPost(this);
     }
 
     //== 내부 메서드 ==//

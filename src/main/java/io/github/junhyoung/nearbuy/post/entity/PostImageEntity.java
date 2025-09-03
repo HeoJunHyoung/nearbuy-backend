@@ -25,9 +25,13 @@ public class PostImageEntity {
     private String imageUrl;
 
     @Builder
-    public PostImageEntity(PostEntity post, String imageUrl) {
-        this.post = post;
+    public PostImageEntity(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    //== 연관관계 편의 메서드 ==//
+    public void setPost(PostEntity post) {
+        this.post = post;
     }
 
 
