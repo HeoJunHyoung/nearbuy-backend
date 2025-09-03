@@ -3,6 +3,7 @@ package io.github.junhyoung.nearbuy.post.controller;
 import io.github.junhyoung.nearbuy.auth.web.dto.UserPrincipal;
 import io.github.junhyoung.nearbuy.global.common.ApiResponse;
 import io.github.junhyoung.nearbuy.post.dto.request.PostCreateRequestDto;
+import io.github.junhyoung.nearbuy.post.dto.request.PostSearchCond;
 import io.github.junhyoung.nearbuy.post.dto.request.PostUpdateRequestDto;
 import io.github.junhyoung.nearbuy.post.dto.response.MyPostResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
@@ -43,6 +44,13 @@ public class PostController {
     @GetMapping
     public ResponseEntity<ApiResponse<Slice<PostResponseDto>>> readPostApi(Pageable pageable) {
         Slice<PostResponseDto> postResponseDtos = postService.readPosts(pageable);
+        return ResponseEntity.ok(ApiResponse.success(postResponseDtos));
+    }
+
+    // 게시글 조건 조회
+    @GetMapping
+    public ResponseEntity<ApiResponse<Slice<PostResponseDto>>> searchPostsApi(@ModelAttribute PostSearchCond cond, Pageable pageable) {
+        Slice<PostResponseDto> postResponseDtos = postService.searchPosts(cond, pageable);
         return ResponseEntity.ok(ApiResponse.success(postResponseDtos));
     }
 

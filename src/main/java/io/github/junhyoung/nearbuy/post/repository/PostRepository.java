@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-public interface PostRepository extends JpaRepository<PostEntity, Long> {
+public interface PostRepository extends JpaRepository<PostEntity, Long>, PostRepositoryCustom {
 
     @Query(value = "SELECT p FROM PostEntity p JOIN FETCH p.userEntity u")
     Slice<PostEntity> findAllWithUser(Pageable pageable);
