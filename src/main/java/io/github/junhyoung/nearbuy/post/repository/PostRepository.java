@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<PostEntity, Long>, PostRepositoryCustom {
 
@@ -20,5 +21,11 @@ public interface PostRepository extends JpaRepository<PostEntity, Long>, PostRep
             "LEFT JOIN FETCH p.userEntity u " +
             "WHERE p.userEntity.id=:userId")
     Slice<PostEntity> findMyPosts(@Param(value="userId") Long userId, Pageable pageable);
+
+    @Query("SELECT p FROM PostEntity p " +
+            "JOIN FETCH p.userEntity " +
+            "LEFT JOIN FETCH p.postImageEntityList " +
+            "WHERE p.id = :postId")
+    Optional<PostEntity> findPostWithDetailsById(@Param("postId") Long postId);
 
 }

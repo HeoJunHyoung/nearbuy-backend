@@ -36,7 +36,9 @@ public class PostDetailResponseDto {
 
     private List<PostImageResponseDto> postImages = new ArrayList<>();
 
-    private PostDetailResponseDto(PostEntity postEntity) {
+    private boolean isFavorited;
+
+    private PostDetailResponseDto(PostEntity postEntity, boolean isFavorited) {
         this.postId = postEntity.getId();
         this.authorId = postEntity.getUserEntity().getId();
         this.authorNickname = postEntity.getUserEntity().getNickname();
@@ -49,10 +51,11 @@ public class PostDetailResponseDto {
         this.postImages = postEntity.getPostImageEntityList().stream()
                 .map(PostImageResponseDto::new)
                 .collect(Collectors.toList());
+        this.isFavorited = isFavorited;
     }
 
-    public static PostDetailResponseDto from(PostEntity postEntity) {
-        return new PostDetailResponseDto(postEntity);
+    public static PostDetailResponseDto from(PostEntity postEntity, boolean isFavorited) {
+        return new PostDetailResponseDto(postEntity, isFavorited);
     }
 
 }

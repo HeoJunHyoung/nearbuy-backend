@@ -48,7 +48,7 @@ public class PostController {
     }
 
     // 게시글 조건 조회
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<ApiResponse<Slice<PostResponseDto>>> searchPostsApi(@ModelAttribute PostSearchCond cond, Pageable pageable) {
         Slice<PostResponseDto> postResponseDtos = postService.searchPosts(cond, pageable);
         return ResponseEntity.ok(ApiResponse.success(postResponseDtos));
@@ -65,8 +65,11 @@ public class PostController {
 
     // 게시글 상세 조회
     @GetMapping("{postId}")
-    public ResponseEntity<ApiResponse<PostDetailResponseDto>> readPostDetailApi(@PathVariable Long postId) {
-        PostDetailResponseDto postDetailResponseDto = postService.readPostDetail(postId);
+    public ResponseEntity<ApiResponse<PostDetailResponseDto>> readPostDetailApi(
+                                @AuthenticationPrincipal UserPrincipal userPrincipal,
+                                @PathVariable Long postId) {
+        Long userId = (userPrincipal != null) ? userPrincipal.id() : null;
+        PostDetailResponseDto postDetailResponseDto = postService.readPostDetail(userId, postId);
         return ResponseEntity.ok(ApiResponse.success(postDetailResponseDto));
     }
 
