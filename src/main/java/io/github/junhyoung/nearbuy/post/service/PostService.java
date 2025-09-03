@@ -55,7 +55,6 @@ public class PostService {
         // 3. 각 이미지 URL을 PostImage 엔티티로 만들어 PostEntity에 추가
         for (String imageUrl : imageUrls) {
             PostImageEntity postImageEntity = PostImageEntity.builder()
-                    .post(postEntity)
                     .imageUrl(imageUrl)
                     .build();
             postEntity.addPostImageEntity(postImageEntity);
@@ -107,7 +106,6 @@ public class PostService {
         List<String> newImageUrls = fileStore.storeFiles(addImages);
         for (String imageUrl : newImageUrls) {
             PostImageEntity newPostImage = PostImageEntity.builder()
-                    .post(postEntity)
                     .imageUrl(imageUrl)
                     .build();
             postEntity.addPostImageEntity(newPostImage);
