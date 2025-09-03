@@ -38,7 +38,9 @@ public class PostDetailResponseDto {
 
     private boolean isFavorited;
 
-    private PostDetailResponseDto(PostEntity postEntity, boolean isFavorited) {
+    private Long viewCount;
+
+    private PostDetailResponseDto(PostEntity postEntity, boolean isFavorited, Long viewCount) {
         this.postId = postEntity.getId();
         this.authorId = postEntity.getUserEntity().getId();
         this.authorNickname = postEntity.getUserEntity().getNickname();
@@ -52,10 +54,11 @@ public class PostDetailResponseDto {
                 .map(PostImageResponseDto::new)
                 .collect(Collectors.toList());
         this.isFavorited = isFavorited;
+        this.viewCount = viewCount;
     }
 
-    public static PostDetailResponseDto from(PostEntity postEntity, boolean isFavorited) {
-        return new PostDetailResponseDto(postEntity, isFavorited);
+    public static PostDetailResponseDto from(PostEntity postEntity, boolean isFavorited, Long viewCount) {
+        return new PostDetailResponseDto(postEntity, isFavorited, viewCount);
     }
 
 }

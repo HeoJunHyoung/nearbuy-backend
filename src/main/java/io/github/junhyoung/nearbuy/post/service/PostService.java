@@ -20,6 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +45,9 @@ public class PostService {
     private final UserRepository userRepository;
     private final FileStore fileStore;
     private final FavoriteRepository favoriteRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String VIEW_COUNT_KEY = "post:view_scores";
 
     // 게시글 생성
     @Transactional
@@ -72,8 +81,14 @@ public class PostService {
 
     // 게시글 조건 검색
     public Slice<PostResponseDto> searchPosts(PostSearchCond cond, Pageable pageable) {
-        Slice<PostEntity> posts = postRepository.search(cond, pageable);
-        return posts.map(PostResponseDto::from);
+        Sort.Order viewCountOrder = pageable.getSort().getOrderFor("viewCount");
+
+        if (viewCountOrder != null && viewCountOrder.isDescending()) {
+            return searchPostsByViewCount(pageable);
+        } else {
+            Slice<PostEntity> posts = postRepository.search(cond, pageable);
+            return posts.map(this::mapToPostResponseDtoWithViewCount);
+        }
     }
 
     // 나의 게시글 전체 조회
@@ -83,17 +98,23 @@ public class PostService {
     }
 
     // 게시글 세부 조회
-    public PostDetailResponseDto readPostDetail(Long userId, Long postId) {
+    public PostDetailResponseDto readPostDetail(Long postId, Long userId) {
+        // 1. 조회수 증가
+        incrementViewCount(postId);
+
+        // 2. 게시글 정보 조회
         PostEntity postEntity = postRepository.findPostWithDetailsById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         boolean isFavorited = false;
-        // userId가 null이 아니면 (로그인한 사용자이면) 관심 여부를 확인
         if (userId != null) {
             isFavorited = favoriteRepository.findByUserEntity_IdAndPostEntity_Id(userId, postId).isPresent();
         }
 
-        return PostDetailResponseDto.from(postEntity, isFavorited);
+        // 3. 실시간 조회수 가져오기
+        Double viewCount = redisTemplate.opsForZSet().score(VIEW_COUNT_KEY, String.valueOf(postId));
+
+        return PostDetailResponseDto.from(postEntity, isFavorited, viewCount != null ? viewCount.longValue() : postEntity.getViewCount());
     }
 
     // 게시글 세부 정보 수정
@@ -135,6 +156,55 @@ public class PostService {
             throw new AccessDeniedException("게시글 삭제는 작성자만 가능합니다.");
         }
         postRepository.delete(postEntity);
+    }
+
+
+
+    //== 내부 헬퍼 메서드 ==//
+
+    // [신규] 조회수 증가 메서드
+    private void incrementViewCount(Long postId) {
+        redisTemplate.opsForZSet().incrementScore(VIEW_COUNT_KEY, String.valueOf(postId), 1);
+    }
+
+    // 조회순 정렬을 위한 메서드
+    private Slice<PostResponseDto> searchPostsByViewCount(Pageable pageable) {
+        ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
+
+        long start = pageable.getOffset();
+        // hasNext를 확인하기 위해 1개 더 요청
+        long end = start + pageable.getPageSize();
+
+        Set<String> postIdsStr = zSetOps.reverseRange(VIEW_COUNT_KEY, start, end);
+
+        if ((postIdsStr == null) || postIdsStr.isEmpty()) {
+            return new SliceImpl<>(List.of(), pageable, false);
+        }
+
+        boolean hasNext = postIdsStr.size() > pageable.getPageSize();
+        List<Long> postIds = postIdsStr.stream()
+                .limit(pageable.getPageSize()) // 실제 페이지 사이즈만큼 자르기
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        List<PostEntity> postsFromDb = postRepository.findAllByIdIn(postIds);
+
+        // Redis의 조회수 순서대로 정렬
+        List<PostEntity> sortedPosts = postIds.stream()
+                .flatMap(id -> postsFromDb.stream().filter(p -> p.getId().equals(id)))
+                .collect(Collectors.toList());
+
+        List<PostResponseDto> dtos = sortedPosts.stream()
+                .map(this::mapToPostResponseDtoWithViewCount)
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(dtos, pageable, hasNext);
+    }
+
+    // DTO 변환 시 조회수 포함
+    private PostResponseDto mapToPostResponseDtoWithViewCount(PostEntity postEntity) {
+        Double viewCount = redisTemplate.opsForZSet().score(VIEW_COUNT_KEY, String.valueOf(postEntity.getId()));
+        return PostResponseDto.from(postEntity, viewCount != null ? viewCount.longValue() : postEntity.getViewCount());
     }
 
 }

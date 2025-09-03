@@ -31,7 +31,9 @@ public class PostResponseDto {
 
     private PostStatus status;
 
-    private PostResponseDto(PostEntity postEntity) {
+    private Long viewCount;
+
+    private PostResponseDto(PostEntity postEntity, Long viewCount) {
         this.postId = postEntity.getId();
         this.authorNickname = postEntity.getUserEntity().getNickname();
         this.title = postEntity.getTitle();
@@ -45,8 +47,12 @@ public class PostResponseDto {
                 .orElse(null);
     }
 
+    public static PostResponseDto from(PostEntity postEntity, Long viewCount) {
+        return new PostResponseDto(postEntity, viewCount);
+    }
+
     public static PostResponseDto from(PostEntity postEntity) {
-        return new PostResponseDto(postEntity);
+        return new PostResponseDto(postEntity, postEntity.getViewCount());
     }
 
 
