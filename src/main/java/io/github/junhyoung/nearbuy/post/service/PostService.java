@@ -11,6 +11,7 @@ import io.github.junhyoung.nearbuy.post.dto.response.PostDetailResponseDto;
 import io.github.junhyoung.nearbuy.post.dto.response.PostResponseDto;
 import io.github.junhyoung.nearbuy.post.entity.PostEntity;
 import io.github.junhyoung.nearbuy.post.entity.PostImageEntity;
+import io.github.junhyoung.nearbuy.post.repository.FavoriteRepository;
 import io.github.junhyoung.nearbuy.post.repository.PostImageRepository;
 import io.github.junhyoung.nearbuy.post.repository.PostRepository;
 import io.github.junhyoung.nearbuy.user.entity.UserEntity;
@@ -20,14 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +38,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final UserRepository userRepository;
     private final FileStore fileStore;
+    private final FavoriteRepository favoriteRepository;
 
     // 게시글 생성
     @Transactional
@@ -83,11 +83,17 @@ public class PostService {
     }
 
     // 게시글 세부 조회
-    public PostDetailResponseDto readPostDetail(Long postId) {
+    public PostDetailResponseDto readPostDetail(Long postId, Long userId) {
         PostEntity postEntity = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
-        return PostDetailResponseDto.from(postEntity);
+        boolean isFavorited = false;
+        // userId가 null이 아니면 (로그인한 사용자이면) 관심 여부를 확인
+        if (userId != null) {
+            isFavorited = favoriteRepository.findByUserEntity_IdAndPostEntity_Id(userId, postId).isPresent();
+        }
+
+        return PostDetailResponseDto.from(postEntity, isFavorited);
     }
 
     // 게시글 세부 정보 수정

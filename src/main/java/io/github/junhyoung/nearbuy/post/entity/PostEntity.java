@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Table(name = "post")
@@ -71,21 +72,11 @@ public class PostEntity extends BaseEntity {
 
     //== 내부 메서드 ==//
     public void updatePostDetail(PostUpdateRequestDto dto) {
-        if (dto.getTitle() != null) {
-            this.title = dto.getTitle();
-        }
-        if (dto.getContents() != null) {
-            this.contents = dto.getContents();
-        }
-        if (dto.getPostStatus() != null) {
-            this.postStatus = dto.getPostStatus();
-        }
-        if (dto.getPrice() != null) {
-            this.price = dto.getPrice();
-        }
-        if (dto.getProductCategory() != null) {
-            this.productCategory = dto.getProductCategory();
-        }
+        Optional.ofNullable(dto.getTitle()).ifPresent(newTitle -> this.title = newTitle);
+        Optional.ofNullable(dto.getContents()).ifPresent(newContents -> this.contents = newContents);
+        Optional.ofNullable(dto.getPostStatus()).ifPresent(newStatus -> this.postStatus = newStatus);
+        Optional.ofNullable(dto.getPrice()).ifPresent(newPrice -> this.price = newPrice);
+        Optional.ofNullable(dto.getProductCategory()).ifPresent(newCategory -> this.productCategory = newCategory);
     }
 
 }
