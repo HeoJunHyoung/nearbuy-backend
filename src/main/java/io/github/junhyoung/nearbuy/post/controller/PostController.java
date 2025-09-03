@@ -68,7 +68,8 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostDetailResponseDto>> readPostDetailApi(
                                 @AuthenticationPrincipal UserPrincipal userPrincipal,
                                 @PathVariable Long postId) {
-        PostDetailResponseDto postDetailResponseDto = postService.readPostDetail(userPrincipal.id(), postId);
+        Long userId = (userPrincipal != null) ? userPrincipal.id() : null;
+        PostDetailResponseDto postDetailResponseDto = postService.readPostDetail(userId, postId);
         return ResponseEntity.ok(ApiResponse.success(postDetailResponseDto));
     }
 

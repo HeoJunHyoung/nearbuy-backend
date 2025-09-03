@@ -83,8 +83,8 @@ public class PostService {
     }
 
     // 게시글 세부 조회
-    public PostDetailResponseDto readPostDetail(Long postId, Long userId) {
-        PostEntity postEntity = postRepository.findById(postId)
+    public PostDetailResponseDto readPostDetail(Long userId, Long postId) {
+        PostEntity postEntity = postRepository.findPostWithDetailsById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         boolean isFavorited = false;
