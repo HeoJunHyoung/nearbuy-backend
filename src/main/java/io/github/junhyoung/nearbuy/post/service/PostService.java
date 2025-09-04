@@ -76,19 +76,13 @@ public class PostService {
     // 게시글 전체 조회
     public Slice<PostResponseDto> readPosts(Pageable pageable) {
         Slice<PostEntity> posts = postRepository.findAllWithUser(pageable);
-        return posts.map(PostResponseDto::from);
+        return posts.map(this::mapToPostResponseDtoWithViewCount);
     }
 
     // 게시글 조건 검색
     public Slice<PostResponseDto> searchPosts(PostSearchCond cond, Pageable pageable) {
-        Sort.Order viewCountOrder = pageable.getSort().getOrderFor("viewCount");
-
-        if (viewCountOrder != null && viewCountOrder.isDescending()) {
-            return searchPostsByViewCount(pageable);
-        } else {
-            Slice<PostEntity> posts = postRepository.search(cond, pageable);
-            return posts.map(this::mapToPostResponseDtoWithViewCount);
-        }
+        Slice<PostEntity> posts = postRepository.search(cond, pageable);
+        return posts.map(this::mapToPostResponseDtoWithViewCount);
     }
 
     // 나의 게시글 전체 조회
@@ -98,7 +92,7 @@ public class PostService {
     }
 
     // 게시글 세부 조회
-    public PostDetailResponseDto readPostDetail(Long postId, Long userId) {
+    public PostDetailResponseDto readPostDetail(Long userId, Long postId) {
         // 1. 조회수 증가
         incrementViewCount(postId);
 
@@ -167,39 +161,6 @@ public class PostService {
         redisTemplate.opsForZSet().incrementScore(VIEW_COUNT_KEY, String.valueOf(postId), 1);
     }
 
-    // 조회순 정렬을 위한 메서드
-    private Slice<PostResponseDto> searchPostsByViewCount(Pageable pageable) {
-        ZSetOperations<String, String> zSetOps = redisTemplate.opsForZSet();
-
-        long start = pageable.getOffset();
-        // hasNext를 확인하기 위해 1개 더 요청
-        long end = start + pageable.getPageSize();
-
-        Set<String> postIdsStr = zSetOps.reverseRange(VIEW_COUNT_KEY, start, end);
-
-        if ((postIdsStr == null) || postIdsStr.isEmpty()) {
-            return new SliceImpl<>(List.of(), pageable, false);
-        }
-
-        boolean hasNext = postIdsStr.size() > pageable.getPageSize();
-        List<Long> postIds = postIdsStr.stream()
-                .limit(pageable.getPageSize()) // 실제 페이지 사이즈만큼 자르기
-                .map(Long::valueOf)
-                .collect(Collectors.toList());
-
-        List<PostEntity> postsFromDb = postRepository.findAllByIdIn(postIds);
-
-        // Redis의 조회수 순서대로 정렬
-        List<PostEntity> sortedPosts = postIds.stream()
-                .flatMap(id -> postsFromDb.stream().filter(p -> p.getId().equals(id)))
-                .collect(Collectors.toList());
-
-        List<PostResponseDto> dtos = sortedPosts.stream()
-                .map(this::mapToPostResponseDtoWithViewCount)
-                .collect(Collectors.toList());
-
-        return new SliceImpl<>(dtos, pageable, hasNext);
-    }
 
     // DTO 변환 시 조회수 포함
     private PostResponseDto mapToPostResponseDtoWithViewCount(PostEntity postEntity) {

@@ -23,8 +23,8 @@ public class PostScheduler {
     private final PostRepository postRepository;
     private static final String VIEW_COUNT_KEY = "post:view_scores";
 
-    // 10분마다 실행 (cron = "0 */10 * * * *")
-    @Scheduled(cron = "0 */10 * * * *")
+    // 5분마다 실행 (cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     @Transactional
     public void syncViewCountsToDb() {
         log.info("조회수 동기화 스케줄러 시작");

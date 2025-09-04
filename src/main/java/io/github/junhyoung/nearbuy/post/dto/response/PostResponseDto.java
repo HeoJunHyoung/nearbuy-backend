@@ -45,6 +45,7 @@ public class PostResponseDto {
                 .findFirst()
                 .map(PostImageResponseDto::new)
                 .orElse(null);
+        this.viewCount = viewCount;
     }
 
     public static PostResponseDto from(PostEntity postEntity, Long viewCount) {
