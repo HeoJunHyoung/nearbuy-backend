@@ -20,6 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +45,9 @@ public class PostService {
     private final UserRepository userRepository;
     private final FileStore fileStore;
     private final FavoriteRepository favoriteRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    private static final String VIEW_COUNT_KEY = "post:view_scores";
 
     // 게시글 생성
     @Transactional
@@ -67,13 +76,13 @@ public class PostService {
     // 게시글 전체 조회
     public Slice<PostResponseDto> readPosts(Pageable pageable) {
         Slice<PostEntity> posts = postRepository.findAllWithUser(pageable);
-        return posts.map(PostResponseDto::from);
+        return posts.map(this::mapToPostResponseDtoWithViewCount);
     }
 
     // 게시글 조건 검색
     public Slice<PostResponseDto> searchPosts(PostSearchCond cond, Pageable pageable) {
         Slice<PostEntity> posts = postRepository.search(cond, pageable);
-        return posts.map(PostResponseDto::from);
+        return posts.map(this::mapToPostResponseDtoWithViewCount);
     }
 
     // 나의 게시글 전체 조회
@@ -84,16 +93,22 @@ public class PostService {
 
     // 게시글 세부 조회
     public PostDetailResponseDto readPostDetail(Long userId, Long postId) {
+        // 1. 조회수 증가
+        incrementViewCount(postId);
+
+        // 2. 게시글 정보 조회
         PostEntity postEntity = postRepository.findPostWithDetailsById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         boolean isFavorited = false;
-        // userId가 null이 아니면 (로그인한 사용자이면) 관심 여부를 확인
         if (userId != null) {
             isFavorited = favoriteRepository.findByUserEntity_IdAndPostEntity_Id(userId, postId).isPresent();
         }
 
-        return PostDetailResponseDto.from(postEntity, isFavorited);
+        // 3. 실시간 조회수 가져오기
+        Double viewCount = redisTemplate.opsForZSet().score(VIEW_COUNT_KEY, String.valueOf(postId));
+
+        return PostDetailResponseDto.from(postEntity, isFavorited, viewCount != null ? viewCount.longValue() : postEntity.getViewCount());
     }
 
     // 게시글 세부 정보 수정
@@ -135,6 +150,22 @@ public class PostService {
             throw new AccessDeniedException("게시글 삭제는 작성자만 가능합니다.");
         }
         postRepository.delete(postEntity);
+    }
+
+
+
+    //== 내부 헬퍼 메서드 ==//
+
+    // [신규] 조회수 증가 메서드
+    private void incrementViewCount(Long postId) {
+        redisTemplate.opsForZSet().incrementScore(VIEW_COUNT_KEY, String.valueOf(postId), 1);
+    }
+
+
+    // DTO 변환 시 조회수 포함
+    private PostResponseDto mapToPostResponseDtoWithViewCount(PostEntity postEntity) {
+        Double viewCount = redisTemplate.opsForZSet().score(VIEW_COUNT_KEY, String.valueOf(postEntity.getId()));
+        return PostResponseDto.from(postEntity, viewCount != null ? viewCount.longValue() : postEntity.getViewCount());
     }
 
 }

@@ -28,4 +28,7 @@ public interface PostRepository extends JpaRepository<PostEntity, Long>, PostRep
             "WHERE p.id = :postId")
     Optional<PostEntity> findPostWithDetailsById(@Param("postId") Long postId);
 
+    @Query("SELECT p FROM PostEntity p JOIN FETCH p.userEntity LEFT JOIN FETCH p.postImageEntityList WHERE p.id IN :ids")
+    List<PostEntity> findAllByIdIn(@Param("ids") List<Long> ids);
+
 }
