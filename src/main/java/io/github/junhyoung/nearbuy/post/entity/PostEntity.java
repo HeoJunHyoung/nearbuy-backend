@@ -49,6 +49,7 @@ public class PostEntity extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImageEntity> postImageEntityList = new ArrayList<>();
 
+    @Column(name = "view_count")
     private Long viewCount;
 
     @Builder
