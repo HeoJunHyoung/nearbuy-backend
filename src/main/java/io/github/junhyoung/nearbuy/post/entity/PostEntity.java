@@ -49,14 +49,17 @@ public class PostEntity extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImageEntity> postImageEntityList = new ArrayList<>();
 
+    private Long viewCount;
+
     @Builder
-    public PostEntity(UserEntity userEntity, String title, String contents, Integer price, ProductCategory productCategory, PostStatus postStatus, String imageUrl) {
+    public PostEntity(UserEntity userEntity, String title, String contents, Integer price, ProductCategory productCategory, PostStatus postStatus) {
         this.userEntity = userEntity;
         this.title = title;
         this.contents = contents;
         this.price = price;
         this.productCategory = productCategory;
         this.postStatus = postStatus;
+        this.viewCount = 0L;
     }
 
     //== 연관관계 편의 메서드 ==//
@@ -77,6 +80,10 @@ public class PostEntity extends BaseEntity {
         Optional.ofNullable(dto.getPostStatus()).ifPresent(newStatus -> this.postStatus = newStatus);
         Optional.ofNullable(dto.getPrice()).ifPresent(newPrice -> this.price = newPrice);
         Optional.ofNullable(dto.getProductCategory()).ifPresent(newCategory -> this.productCategory = newCategory);
+    }
+
+    public void updateViewCount(Long viewCount) {
+        this.viewCount = viewCount;
     }
 
 }

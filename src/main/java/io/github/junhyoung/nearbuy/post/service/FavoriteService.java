@@ -52,13 +52,6 @@ public class FavoriteService {
         }
     }
 
-
-    // 특정 게시글의 즐겨찾기 상태 조회
-    @Transactional(readOnly = true)
-    public boolean checkFavoriteStatus(Long userId, Long postId) {
-        return favoriteRepository.findByUserEntity_IdAndPostEntity_Id(userId, postId).isPresent();
-    }
-
     // 나의 관심 목록 조회
     @Transactional(readOnly = true)
     public Slice<PostResponseDto> getMyFavoritePosts(Long userId, Pageable pageable) {

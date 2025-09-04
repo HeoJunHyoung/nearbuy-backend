@@ -67,7 +67,7 @@ public class PostController {
     @GetMapping("{postId}")
     public ResponseEntity<ApiResponse<PostDetailResponseDto>> readPostDetailApi(
                                 @AuthenticationPrincipal UserPrincipal userPrincipal,
-                                @PathVariable Long postId) {
+                                @PathVariable("postId") Long postId) {
         Long userId = (userPrincipal != null) ? userPrincipal.id() : null;
         PostDetailResponseDto postDetailResponseDto = postService.readPostDetail(userId, postId);
         return ResponseEntity.ok(ApiResponse.success(postDetailResponseDto));
@@ -76,7 +76,7 @@ public class PostController {
     // 게시글 수정
     @PatchMapping(value = "/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<ApiResponse<Void>> updatePostApi(
-            @PathVariable Long postId,
+            @PathVariable("postId") Long postId,
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestPart("dto") PostUpdateRequestDto dto,
             @RequestPart(value = "addImages", required = false) List<MultipartFile> addImages) throws IOException {
@@ -87,7 +87,7 @@ public class PostController {
 
     // 게시글 삭제
     @DeleteMapping("{postId}")
-    public ResponseEntity<ApiResponse<Void>> deletePostApi(@PathVariable Long postId,
+    public ResponseEntity<ApiResponse<Void>> deletePostApi(@PathVariable("postId") Long postId,
                                                            @AuthenticationPrincipal UserPrincipal userPrincipal) {
         postService.deletePost(postId, userPrincipal.id());
         return ResponseEntity.ok(ApiResponse.success());
