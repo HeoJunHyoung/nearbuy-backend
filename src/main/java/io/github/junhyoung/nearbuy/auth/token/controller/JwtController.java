@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// 5단계: 최종 토큰 교환 (JwtController)
+// ㄴ 리다이렉트된 프론트엔드 페이지는 자바스크립트를 통해 쿠키에 담긴 Refresh Token을 확인합니다.
+// ㄴ 이 Refresh Token을 가지고 백엔드의 POST /jwt/exchange API를 호출합니다.
+// ㄴ auth.token.controller.JwtController는 이 요청을 받아 JwtService를 통해 Refresh Token을 검증하고,
+//    마침내 클라이언트가 사용할 Access Token과 새로운 Refresh Token 한 쌍을 JSON 형태로 응답해줍니다.
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/jwt")

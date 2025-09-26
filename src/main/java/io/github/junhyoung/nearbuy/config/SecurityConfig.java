@@ -105,6 +105,8 @@ public class SecurityConfig {
                 )
 
                 // 2. OAuth2 로그인 핸들러
+                // ㄴ 로컬 로그인이 서버 내부의 Filter -> Provider -> Service 흐름으로 진행되는 것과 달리,
+                //    소셜 로그인은 외부 서비스(Google, Naver 등)와 상호작용이 포함되어 흐름이 조금 더 복잡
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(socialLoginService)) // custom service를 명시적으로 지정

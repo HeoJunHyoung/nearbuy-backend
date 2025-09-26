@@ -57,9 +57,16 @@ public class JWTFilter extends OncePerRequestFilter {
         String role = JWTUtil.getRole(accessToken);
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-        // UserPrincipal 객체를 생성하여 principal로 사용합니다.
+        // UserPrincipal 객체를 생성하여 principal로 사용
+        // ㄴ @AuthenticationPrincipal 실체
         UserPrincipal userPrincipal = new UserPrincipal(id, username, authorities);
         Authentication auth = new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.authorities());
+
+        // 현재 요청을 처리하는 동안 이 사용자는 인증된 상태임을 시스템 전체에 알리는 역할
+        // ㄴ 이 '방문자 기록부'는 현재 요청이 끝날 때까지만 유효 (Stateless)
         SecurityContextHolder.getContext().setAuthentication(auth);
+
+        // 각 컨트롤러의 메서드 파라미터에 @AuthenticationPrincipal UserPrincipal userPrincipal 있다면,
+        // Spring은 해당 어노테이션을 인식하여, SecurityContextHolder에 등록된 UserPrincipal을 찾아서 자동으로 파라미터에 주입시켜 줌 (컨트롤러 호출 시점에)
     }
 }

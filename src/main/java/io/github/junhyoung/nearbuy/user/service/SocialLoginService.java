@@ -22,6 +22,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+// 1단계: 소셜 로그인 시작 (Spring Security의 OAuth2 필터)
+// ㄴ 사용자가 프론트엔드에서 "구글 로그인" 버튼을 클릭하면, 브라우저는 GET /oauth2/authorization/google 같은 경로로 요청을 보냅니다.
+// ㄴ 이 요청은 LoginFilter가 아닌, Spring Security에 내장된 OAuth2AuthorizationRequestRedirectFilter가 가로채 구글의 로그인 페이지로 사용자를 리다이렉트시킵니다.
+
+// 2단계: 외부 소셜 서비스에서 인증
+// ㄴ 사용자는 구글 페이지에서 자신의 아이디와 비밀번호로 로그인하고, 정보 제공에 동의합니다.
+// ㄴ 로그인이 성공하면, 구글은 임시 인증 코드(Authorization Code)를 포함한 채, 사전에 등록된 우리 서버의 주소(Redirect URI)로 사용자를 다시 돌려보냅니다.
+
+// 3단계: 사용자 정보 조회 (SocialLoginService)
+// ㄴ Spring Security의 OAuth2LoginAuthenticationFilter가 이 콜백 요청을 받아, 구글로부터 받은 인증 코드를 구글 서버에 다시 보내 액세스 토큰(Access Token)으로 교환합니다.
+// ㄴ 그 후, 이 액세스 토큰을 이용해 구글의 API 서버에서 사용자의 정보(이메일, 이름 등)를 가져옵니다.
+// ㄴ 가져온 사용자 정보를 가지고 SecurityConfig에 등록된 user.service.SocialLoginService의 loadUser() 메서드를 호출합니다. 이 서비스의 역할은 다음과 같습니다.
+//  ㄴ 비밀번호 검증이 없습니다. (인증 책임은 구글에 위임했기 때문입니다.)
+//  ㄴ DB에서 해당 소셜 ID를 가진 사용자가 있는지 확인합니다.
+//  ㄴ 기존 회원이면: 최신 정보(닉네임 등)로 업데이트합니다.
+//  ㄴ 신규 회원이면: 비밀번호 없이 새로운 회원 정보를 DB에 저장합니다.
+//  ㄴ CustomOAuth2User 객체를 생성하여 반환합니다.
 @Service
 @RequiredArgsConstructor
 @Transactional

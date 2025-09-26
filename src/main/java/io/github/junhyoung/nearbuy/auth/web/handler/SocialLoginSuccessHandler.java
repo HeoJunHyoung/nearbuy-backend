@@ -13,6 +13,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import jakarta.servlet.http.Cookie;
+
+// 4단계: 인증 성공 후 처리 (SocialLoginSuccessHandler)
+// ㄴ SocialLoginService가 성공적으로 CustomOAuth2User를 반환하면, auth.web.handler.SocialLoginSuccessHandler의 onAuthenticationSuccess() 메서드가 호출됩니다.
+// ㄴ 여기서 중요한 차이점이 발생합니다.
+//  ㄴ Refresh Token만 발급하여 HttpOnly 속성이 적용된 쿠키에 담습니다. (Access Token은 발급하지 않음)
+//  ㄴ 프론트엔드의 특정 페이지(예: http://localhost:5173/cookie)로 사용자를 리다이렉트시킵니다.
 @Component
 @Qualifier("SocialLoginSuccessHandler")
 @RequiredArgsConstructor
